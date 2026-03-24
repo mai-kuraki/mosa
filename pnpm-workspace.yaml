@@ -1,0 +1,10 @@
+packages:
+  - "apps/*"
+  - "packages/*"
+  - "tooling/*"
+allowBuilds:
+  better-sqlite3: true
+  electron: true
+  esbuild: true
+  exifreader: true
+  sharp: true

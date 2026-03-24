@@ -1,0 +1,48 @@
+{
+  "name": "mosa-desktop",
+  "version": "0.1.0",
+  "private": true,
+  "main": "./dist/electron/main.js",
+  "type": "module",
+  "scripts": {
+    "dev": "electron-vite dev",
+    "build": "electron-vite build",
+    "preview": "electron-vite preview",
+    "lint": "eslint electron/ src/",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "package": "electron-builder",
+    "package:mac": "electron-builder --mac",
+    "package:win": "electron-builder --win",
+    "clean": "rm -rf dist out release"
+  },
+  "dependencies": {
+    "@mosa/ipc-bridge": "workspace:*",
+    "@mosa/render-engine": "workspace:*",
+    "@mosa/shared-utils": "workspace:*",
+    "@mosa/ui-kit": "workspace:*",
+    "better-sqlite3": "^11.0.0",
+    "chokidar": "^4.0.0",
+    "electron-log": "^5.0.0",
+    "electron-store": "^10.0.0",
+    "electron-updater": "^6.0.0",
+    "exifreader": "^4.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-router-dom": "^7.0.0",
+    "zustand": "^5.0.0"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.0.0",
+    "@types/node": "^22.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@vitejs/plugin-react": "^4.0.0",
+    "electron": "^34.0.0",
+    "electron-builder": "^25.0.0",
+    "electron-vite": "^4.0.0",
+    "less": "^4.6.4",
+    "typescript": "^5.7.0",
+    "vitest": "^3.1.0"
+  }
+}

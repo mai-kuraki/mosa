@@ -1,0 +1,48 @@
+appId: com.mosa.desktop
+productName: Mosa
+copyright: Copyright 2024 Mosa Contributors
+
+directories:
+  output: release/${version}
+  buildResources: resources
+
+files:
+  - dist/**/*
+  - "!node_modules/**/*"
+
+asarUnpack:
+  - "**/node_modules/sharp/**"
+  - "**/node_modules/better-sqlite3/**"
+
+mac:
+  category: public.app-category.photography
+  icon: resources/icons/icon.icns
+  target:
+    - target: dmg
+      arch:
+        - x64
+        - arm64
+    - target: zip
+      arch:
+        - x64
+        - arm64
+
+dmg:
+  artifactName: Mosa-${version}-${arch}.dmg
+
+win:
+  icon: resources/icons/icon.ico
+  target:
+    - target: nsis
+      arch:
+        - x64
+
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  artifactName: Mosa-Setup-${version}.exe
+
+publish:
+  provider: github
+  owner: mosa
+  repo: mosa
