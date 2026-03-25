@@ -5,7 +5,6 @@ import { handleCatalogImportFolder, handleCatalogGetImages, handleCatalogGetFold
 import { handleBatchStart, handleBatchCancel } from "./handlers/batch.handler";
 import { handleExportSingle } from "./handlers/export.handler";
 import { handleSettingsGet, handleSettingsSet } from "./handlers/settings.handler";
-import { handleWindowMinimize, handleWindowMaximize, handleWindowClose } from "./handlers/window.handler";
 import { IPC_CHANNELS } from "@mosa/ipc-bridge";
 
 const logger = createLogger("ipc");
@@ -36,11 +35,6 @@ export function registerIpcHandlers(): void {
   // Settings
   ipcMain.handle(IPC_CHANNELS.SETTINGS_GET, () => handleSettingsGet());
   ipcMain.handle(IPC_CHANNELS.SETTINGS_SET, (_e, data) => handleSettingsSet(data));
-
-  // Window controls
-  ipcMain.handle(IPC_CHANNELS.WINDOW_MINIMIZE, () => handleWindowMinimize());
-  ipcMain.handle(IPC_CHANNELS.WINDOW_MAXIMIZE, () => handleWindowMaximize());
-  ipcMain.handle(IPC_CHANNELS.WINDOW_CLOSE, () => handleWindowClose());
 
   logger.info("IPC handlers registered.");
 }

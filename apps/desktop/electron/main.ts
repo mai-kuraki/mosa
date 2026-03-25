@@ -14,8 +14,8 @@ function createWindow(): void {
     minHeight: 700,
     show: false,
     title: "Mosa",
-    frame: false,
-    roundedCorners: true,
+    titleBarStyle: "hiddenInset",
+    trafficLightPosition: { x: 12, y: 12 },
     backgroundColor: "#FFFFFF",
     webPreferences: {
       preload: join(__dirname, "../preload/preload.mjs"),
@@ -27,14 +27,9 @@ function createWindow(): void {
 
   mainWindow.on("ready-to-show", () => {
     mainWindow?.show();
-  });
-
-  // Push maximize state changes to Renderer for TitleBar icon toggle
-  mainWindow.on("maximize", () => {
-    mainWindow?.webContents.send("window:maximized-change", true);
-  });
-  mainWindow.on("unmaximize", () => {
-    mainWindow?.webContents.send("window:maximized-change", false);
+    if (process.env.NODE_ENV === "development") {
+      mainWindow?.webContents.openDevTools({ mode: "detach" });
+    }
   });
 
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {

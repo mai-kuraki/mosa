@@ -28,7 +28,4 @@ export interface IpcEvents {
     processed: number;
     total: number;
   };
-
-  /** Window maximized state changed */
-  "window:maximized-change": boolean;
 }

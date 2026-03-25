@@ -12,35 +12,33 @@ const ActionPanel: React.FC = () => {
 
   return (
     <div className={styles.panel}>
-      <div className={styles.branding}>
-        <span className={styles.logo}>Mosa</span>
-        <p className={styles.slogan}>
-          Reconstruct the
-          <br />
-          Logic of Light.
-        </p>
-      </div>
+      <div className={styles.content}>
+        {/* Hero: Logo + Product name */}
+        <div className={styles.hero}>
+          <img src="/logo.svg" alt="Mosa" className={styles.logo} />
+          <h1 className={styles.productName}>osa</h1>
+        </div>
 
-      <div className={styles.actions}>
-        <button className={styles.btnPrimary} onClick={handleImport}>
-          <svg className={styles.plusIcon} viewBox="0 0 14 14">
-            <line x1="7" y1="0" x2="7" y2="14" />
-            <line x1="0" y1="7" x2="14" y2="7" />
-          </svg>
-          Import
-        </button>
-        <button
-          className={styles.btnSecondary}
-          onClick={() => navigate("/library")}
-        >
-          Library
-        </button>
-        <button
-          className={styles.btnSecondary}
-          onClick={() => navigate("/settings")}
-        >
-          Settings
-        </button>
+        {/* Slogan */}
+        <div className={styles.sloganBlock}>
+          <p className={styles.sloganEn}>
+            Reconstruct the<br/>Logic of Light.
+          </p>
+          <p className={styles.sloganCn}>重构光的逻辑，<br/>解构色彩边界，重新定义决定性瞬间。</p>
+        </div>
+        <div style={{ flex: 1 }}/>
+        {/* Actions */}
+        <div className={styles.actions}>
+          <button className={styles.btnPrimary} onClick={handleImport}>
+            导入照片
+          </button>
+          <button
+            className={styles.btnOutline}
+            onClick={() => navigate("/library")}
+            >
+                图库
+            </button>
+        </div>
       </div>
     </div>
   );

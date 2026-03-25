@@ -1,104 +1,129 @@
 .panel {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
   height: 100%;
-  padding: 48px 40px;
-  background-color: #F5F5F5;
-  gap: 48px;
+  background-color: #FFFFFF;
+  padding: 48px 40px 178px;
+  position: relative;
+  display: flex;
 }
 
-.branding {
+.content {
+  width: 100%;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 24px;
+  align-items: flex-start;
+}
+
+/* ── Hero: Logo + Product name ── */
+.hero {
+  display: flex;
+  align-items: flex-end;
+  gap: 14px;
+  position: absolute;
+  position: absolute;
+  left: 45px;
+  bottom: -42px;
+  opacity: 0.1;
+  pointer-events: none;
 }
 
 .logo {
-  font-size: 28px;
-  font-weight: 700;
+  width: 180px;
+  height: 180px;
+}
+
+.productName {
+  font-size: 105px;
+  font-weight: 800;
   color: var(--fg-primary);
-  letter-spacing: 0.12em;
+  line-height: 1;
+  transform: translateY(-36px);
+  font-style: italic;
 }
 
-.slogan {
-  font-family: 'Inter', 'Helvetica Neue', Helvetica, sans-serif;
-  font-size: 13px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.2em;
-  line-height: 1.6;
-  text-align: center;
-  color: var(--fg-secondary);
+/* ── Slogan ── */
+.sloganBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 30px;
 }
 
+.sloganEn {
+  font-size: 70px;
+  font-weight: bolder;
+  line-height: 1;
+  color: #1E1E1E;
+  margin-bottom: 30px;
+}
+
+.sloganCn {
+  font-size: 24px;
+  color: #898989;
+  font-weight: 300;
+  margin-bottom: 50px;
+}
+
+/* ── Actions ── */
 .actions {
   display: flex;
   flex-direction: column;
+  justify-content: center;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
+  padding-top: 8px;
   width: 100%;
-  max-width: 240px;
+  margin-top: 30px;
 }
 
 .btnPrimary {
-  width: 100%;
+  width: 320px;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  padding: 12px 24px;
-  background-color: #121212;
+  padding: 16px 24px;
+  background-color: var(--fg-primary);
   color: #FFFFFF;
-  border: none;
-  border-radius: 6px;
-  font-size: 13px;
+  border: 2px solid var(--fg-primary);
+  font-size: 14px;
   font-weight: 600;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  letter-spacing: 0.12em;
   cursor: pointer;
-  transition: transform 0.1s, opacity 0.15s;
+  transition: background-color 0.2s, color 0.2s, transform 0.1s;
+  border-radius: 6px;
 }
 
 .btnPrimary:hover {
-  opacity: 0.9;
+  background-color: #000000;
+  border-color: #000000;
 }
 
 .btnPrimary:active {
   transform: scale(0.98);
 }
 
-.btnSecondary {
-  width: 100%;
-  padding: 10px 24px;
+
+.btnOutline {
+  width: 320px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 24px;
   background-color: transparent;
   color: var(--fg-primary);
-  border: 1px solid var(--border-default);
-  border-radius: 6px;
+  border: 1.5px solid var(--border-default);
   font-size: 13px;
   font-weight: 500;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
+  letter-spacing: 0.1em;
   cursor: pointer;
-  transition: background-color 0.15s, transform 0.1s;
-  text-decoration: none;
-  text-align: center;
+  transition: border-color 0.2s, background-color 0.2s, transform 0.1s;
+  border-radius: 6px;
 }
 
-.btnSecondary:hover {
-  background-color: var(--bg-tertiary);
+.btnOutline:hover {
+  border-color: var(--fg-primary);
+  background-color: rgba(0, 0, 0, 0.02);
 }
 
-.btnSecondary:active {
+.btnOutline:active {
   transform: scale(0.98);
-}
-
-.plusIcon {
-  width: 14px;
-  height: 14px;
-  stroke: currentColor;
-  stroke-width: 2;
-  fill: none;
 }
