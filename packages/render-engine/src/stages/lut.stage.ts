@@ -12,7 +12,7 @@ export class LutStage implements RenderStage {
 
   constructor(
     private backend: RenderBackend,
-    private lutData: LutData
+    private lutData: LutData,
   ) {}
 
   async execute(input: Buffer, context: StageContext): Promise<Buffer> {
@@ -21,7 +21,7 @@ export class LutStage implements RenderStage {
       context.width,
       context.height,
       this.lutData.data,
-      this.lutData.size
+      this.lutData.size,
     );
   }
 }

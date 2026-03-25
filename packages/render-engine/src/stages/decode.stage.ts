@@ -13,10 +13,7 @@ export class DecodeStage implements RenderStage {
 
   async execute(_input: Buffer, context: StageContext): Promise<Buffer> {
     const image = sharp(this.filePath);
-    const { data, info } = await image
-      .removeAlpha()
-      .raw()
-      .toBuffer({ resolveWithObject: true });
+    const { data, info } = await image.removeAlpha().raw().toBuffer({ resolveWithObject: true });
 
     // Update context with actual image dimensions
     context.width = info.width;

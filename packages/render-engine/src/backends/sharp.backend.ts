@@ -12,10 +12,7 @@ export class SharpBackend implements RenderBackend {
 
   async decode(filePath: string) {
     const image = sharp(filePath);
-    const { data, info } = await image
-      .removeAlpha()
-      .raw()
-      .toBuffer({ resolveWithObject: true });
+    const { data, info } = await image.removeAlpha().raw().toBuffer({ resolveWithObject: true });
 
     return {
       buffer: data,
@@ -29,7 +26,7 @@ export class SharpBackend implements RenderBackend {
     buffer: Buffer,
     width: number,
     height: number,
-    matrix: number[][]
+    matrix: number[][],
   ): Promise<Buffer> {
     const m: Matrix3x3 = [
       [matrix[0][0], matrix[0][1], matrix[0][2]],
@@ -52,7 +49,7 @@ export class SharpBackend implements RenderBackend {
     width: number,
     height: number,
     lutData: Float32Array,
-    lutSize: number
+    lutSize: number,
   ): Promise<Buffer> {
     const pixelCount = width * height;
     const output = Buffer.alloc(pixelCount * 3);
@@ -112,7 +109,7 @@ export class SharpBackend implements RenderBackend {
     buffer: Buffer,
     width: number,
     height: number,
-    curve: { r: Uint8Array; g: Uint8Array; b: Uint8Array }
+    curve: { r: Uint8Array; g: Uint8Array; b: Uint8Array },
   ): Promise<Buffer> {
     const pixelCount = width * height;
     const output = Buffer.alloc(pixelCount * 3);
@@ -132,7 +129,7 @@ export class SharpBackend implements RenderBackend {
     overlay: Buffer,
     width: number,
     height: number,
-    _opacity: number
+    _opacity: number,
   ): Promise<Buffer> {
     // Note: Sharp composite doesn't directly support opacity on raw buffers.
     // For MVP, we apply opacity by pre-multiplying the overlay alpha.
@@ -157,7 +154,7 @@ export class SharpBackend implements RenderBackend {
     width: number,
     height: number,
     format: "jpeg" | "png" | "tiff",
-    quality = 90
+    quality = 90,
   ): Promise<Buffer> {
     let pipeline = sharp(buffer, {
       raw: { width, height, channels: 3 },
@@ -183,7 +180,7 @@ export class SharpBackend implements RenderBackend {
     width: number,
     height: number,
     targetWidth: number,
-    targetHeight: number
+    targetHeight: number,
   ): Promise<Buffer> {
     return sharp(buffer, {
       raw: { width, height, channels: 3 },

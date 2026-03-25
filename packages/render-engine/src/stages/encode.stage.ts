@@ -11,7 +11,7 @@ export class EncodeStage implements RenderStage {
 
   constructor(
     private format: "jpeg" | "png" | "tiff" = "jpeg",
-    private quality: number = 90
+    private quality: number = 90,
   ) {}
 
   async execute(input: Buffer, context: StageContext): Promise<Buffer> {

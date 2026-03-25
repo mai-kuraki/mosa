@@ -67,8 +67,6 @@ export const useBatchStore = create<BatchState>((set) => ({
 
   updateItem: (imageId, update) =>
     set((state) => ({
-      queue: state.queue.map((item) =>
-        item.imageId === imageId ? { ...item, ...update } : item
-      ),
+      queue: state.queue.map((item) => (item.imageId === imageId ? { ...item, ...update } : item)),
     })),
 }));

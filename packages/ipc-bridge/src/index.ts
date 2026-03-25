@@ -2,13 +2,7 @@
 // Type-safe IPC contracts shared between Main and Renderer processes
 
 export { IPC_CHANNELS } from "./channels";
-export type {
-  IpcContract,
-  IpcRequest,
-  IpcResponse,
-  IpcHandler,
-  IpcInvoker,
-} from "./channels";
+export type { IpcContract, IpcRequest, IpcResponse, IpcHandler, IpcInvoker } from "./channels";
 
 export type { ImageContract } from "./contracts/image.contract";
 export type { CatalogContract } from "./contracts/catalog.contract";

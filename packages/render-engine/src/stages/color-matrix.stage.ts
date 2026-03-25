@@ -11,15 +11,10 @@ export class ColorMatrixStage implements RenderStage {
 
   constructor(
     private backend: RenderBackend,
-    private matrix: number[][]
+    private matrix: number[][],
   ) {}
 
   async execute(input: Buffer, context: StageContext): Promise<Buffer> {
-    return this.backend.applyColorMatrix(
-      input,
-      context.width,
-      context.height,
-      this.matrix
-    );
+    return this.backend.applyColorMatrix(input, context.width, context.height, this.matrix);
   }
 }

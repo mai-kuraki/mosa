@@ -13,7 +13,11 @@ const workspaceAliases = {
 
 export default defineConfig({
   main: {
-    plugins: [externalizeDepsPlugin({ exclude: ["@mosa/shared-utils", "@mosa/ipc-bridge", "@mosa/render-engine"] })],
+    plugins: [
+      externalizeDepsPlugin({
+        exclude: ["@mosa/shared-utils", "@mosa/ipc-bridge", "@mosa/render-engine"],
+      }),
+    ],
     resolve: {
       alias: workspaceAliases,
     },

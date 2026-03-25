@@ -9,7 +9,7 @@ import { createLogger } from "../../services/logger.service";
 const logger = createLogger("ipc:image");
 
 export async function handleImageApplyPreset(
-  data: ApplyPresetRequest
+  data: ApplyPresetRequest,
 ): Promise<Result<ApplyPresetResponse, string>> {
   try {
     logger.info(`Applying preset "${data.presetId}" to ${data.imagePath}`);
@@ -25,9 +25,9 @@ export async function handleImageApplyPreset(
   }
 }
 
-export async function handleImageGetMetadata(
-  data: { imagePath: string }
-): Promise<Result<ImageMetadata, string>> {
+export async function handleImageGetMetadata(data: {
+  imagePath: string;
+}): Promise<Result<ImageMetadata, string>> {
   try {
     logger.info(`Reading metadata for ${data.imagePath}`);
     // TODO: Implement with ExifReader
@@ -42,9 +42,10 @@ export async function handleImageGetMetadata(
   }
 }
 
-export async function handleImageGetPreview(
-  data: { imagePath: string; maxSize?: number }
-): Promise<Result<{ dataUrl: string }, string>> {
+export async function handleImageGetPreview(data: {
+  imagePath: string;
+  maxSize?: number;
+}): Promise<Result<{ dataUrl: string }, string>> {
   try {
     logger.info(`Generating preview for ${data.imagePath}`);
     // TODO: Implement with Sharp resize + base64 encode

@@ -4,9 +4,11 @@ import { createLogger } from "../../services/logger.service";
 
 const logger = createLogger("ipc:export");
 
-export async function handleExportSingle(
-  data: { imageId: string; presetId: string; settings: ExportSettings }
-): Promise<Result<{ outputPath: string }, string>> {
+export async function handleExportSingle(data: {
+  imageId: string;
+  presetId: string;
+  settings: ExportSettings;
+}): Promise<Result<{ outputPath: string }, string>> {
   try {
     logger.info(`Exporting image ${data.imageId} with preset "${data.presetId}"`);
     // TODO: Run pipeline + write to outputDir

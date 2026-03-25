@@ -61,9 +61,7 @@ export async function handleSettingsGet(): Promise<Result<AppSettings, string>> 
   }
 }
 
-export async function handleSettingsSet(
-  data: Partial<AppSettings>
-): Promise<Result<void, string>> {
+export async function handleSettingsSet(data: Partial<AppSettings>): Promise<Result<void, string>> {
   try {
     logger.info("Updating settings");
     currentSettings = { ...currentSettings, ...data };

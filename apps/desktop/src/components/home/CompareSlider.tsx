@@ -33,7 +33,7 @@ const CompareSlider: React.FC<CompareSliderProps> = ({
       (e.target as HTMLElement).setPointerCapture(e.pointerId);
       updatePosition(e.clientY);
     },
-    [updatePosition]
+    [updatePosition],
   );
 
   const onPointerMove = useCallback(
@@ -41,7 +41,7 @@ const CompareSlider: React.FC<CompareSliderProps> = ({
       if (!dragging.current) return;
       updatePosition(e.clientY);
     },
-    [updatePosition]
+    [updatePosition],
   );
 
   const onPointerUp = useCallback(() => {

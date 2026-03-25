@@ -35,8 +35,5 @@ export interface CatalogContract {
   >;
   "catalog:get-folders": IpcContract<void, { folders: FolderInfo[] }>;
   "catalog:remove-image": IpcContract<{ imageId: string }, void>;
-  "catalog:set-rating": IpcContract<
-    { imageId: string; rating: number },
-    void
-  >;
+  "catalog:set-rating": IpcContract<{ imageId: string; rating: number }, void>;
 }

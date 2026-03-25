@@ -4,9 +4,9 @@ import { createLogger } from "../../services/logger.service";
 
 const logger = createLogger("ipc:catalog");
 
-export async function handleCatalogImportFolder(
-  data: { folderPath: string }
-): Promise<Result<{ folder: FolderInfo; importedCount: number }, string>> {
+export async function handleCatalogImportFolder(data: {
+  folderPath: string;
+}): Promise<Result<{ folder: FolderInfo; importedCount: number }, string>> {
   try {
     logger.info(`Importing folder: ${data.folderPath}`);
     // TODO: Scan folder, insert into SQLite, generate thumbnails
@@ -27,9 +27,11 @@ export async function handleCatalogImportFolder(
   }
 }
 
-export async function handleCatalogGetImages(
-  data: { folderId?: string; sortBy?: string; filterRating?: number }
-): Promise<Result<{ images: CatalogImage[] }, string>> {
+export async function handleCatalogGetImages(data: {
+  folderId?: string;
+  sortBy?: string;
+  filterRating?: number;
+}): Promise<Result<{ images: CatalogImage[] }, string>> {
   try {
     // TODO: Query SQLite with filters
     return ok({ images: [] });

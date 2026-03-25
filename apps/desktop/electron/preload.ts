@@ -19,19 +19,15 @@ const mosaApi = {
   /** Listen for one-way events pushed from Main process. */
   on: <K extends keyof IpcEvents>(
     event: K,
-    callback: (data: IpcEvents[K]) => void
+    callback: (data: IpcEvents[K]) => void,
   ): (() => void) => {
-    const handler = (_event: Electron.IpcRendererEvent, data: IpcEvents[K]) =>
-      callback(data);
+    const handler = (_event: Electron.IpcRendererEvent, data: IpcEvents[K]) => callback(data);
     ipcRenderer.on(event as string, handler);
     return () => ipcRenderer.removeListener(event as string, handler);
   },
 
   /** One-time event listener. */
-  once: <K extends keyof IpcEvents>(
-    event: K,
-    callback: (data: IpcEvents[K]) => void
-  ): void => {
+  once: <K extends keyof IpcEvents>(event: K, callback: (data: IpcEvents[K]) => void): void => {
     ipcRenderer.once(event as string, (_event, data) => callback(data));
   },
 };

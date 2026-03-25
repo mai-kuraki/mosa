@@ -28,9 +28,6 @@ export interface ApplyPresetResponse {
 export interface ImageContract {
   "image:apply-preset": IpcContract<ApplyPresetRequest, ApplyPresetResponse>;
   "image:get-metadata": IpcContract<{ imagePath: string }, ImageMetadata>;
-  "image:get-preview": IpcContract<
-    { imagePath: string; maxSize?: number },
-    { dataUrl: string }
-  >;
+  "image:get-preview": IpcContract<{ imagePath: string; maxSize?: number }, { dataUrl: string }>;
   "image:get-histogram": IpcContract<{ imagePath: string }, { histogram: number[] }>;
 }

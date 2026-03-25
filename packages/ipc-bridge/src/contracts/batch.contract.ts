@@ -18,10 +18,7 @@ export interface BatchSettings {
 }
 
 export interface BatchContract {
-  "batch:start": IpcContract<
-    { imageIds: string[]; settings: BatchSettings },
-    { batchId: string }
-  >;
+  "batch:start": IpcContract<{ imageIds: string[]; settings: BatchSettings }, { batchId: string }>;
   "batch:cancel": IpcContract<{ batchId: string }, void>;
   "batch:get-status": IpcContract<
     { batchId: string },

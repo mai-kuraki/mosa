@@ -60,10 +60,7 @@ const TextType = ({
   const cursorRef = useRef<HTMLSpanElement>(null);
   const containerRef = useRef<HTMLElement>(null);
 
-  const textArray = useMemo(
-    () => (Array.isArray(text) ? text : [text]),
-    [text]
-  );
+  const textArray = useMemo(() => (Array.isArray(text) ? text : [text]), [text]);
 
   const getRandomSpeed = useCallback(() => {
     if (!variableSpeed) return typingSpeed;
@@ -87,7 +84,7 @@ const TextType = ({
           }
         });
       },
-      { threshold: 0.1 }
+      { threshold: 0.1 },
     );
 
     observer.observe(containerRef.current);
@@ -113,9 +110,7 @@ const TextType = ({
     let timeout: ReturnType<typeof setTimeout>;
 
     const currentText = textArray[currentTextIndex];
-    const processedText = reverseMode
-      ? currentText.split("").reverse().join("")
-      : currentText;
+    const processedText = reverseMode ? currentText.split("").reverse().join("") : currentText;
 
     const executeTypingAnimation = () => {
       if (isDeleting) {
@@ -144,7 +139,7 @@ const TextType = ({
               setDisplayedText((prev) => prev + processedText[currentCharIndex]);
               setCurrentCharIndex((prev) => prev + 1);
             },
-            variableSpeed ? getRandomSpeed() : typingSpeed
+            variableSpeed ? getRandomSpeed() : typingSpeed,
           );
         } else if (textArray.length >= 1) {
           if (!loop && currentTextIndex === textArray.length - 1) return;
@@ -181,8 +176,7 @@ const TextType = ({
   ]);
 
   const shouldHideCursor =
-    hideCursorWhileTyping &&
-    (currentCharIndex < textArray[currentTextIndex].length || isDeleting);
+    hideCursorWhileTyping && (currentCharIndex < textArray[currentTextIndex].length || isDeleting);
 
   return createElement(
     Component,
@@ -191,10 +185,7 @@ const TextType = ({
       className: `${styles.textType} ${className}`,
       ...props,
     },
-    <span
-      className={styles.content}
-      style={{ color: getCurrentTextColor() || "inherit" }}
-    >
+    <span className={styles.content} style={{ color: getCurrentTextColor() || "inherit" }}>
       {displayedText}
     </span>,
     showCursor && (
@@ -204,7 +195,7 @@ const TextType = ({
       >
         {cursorCharacter}
       </span>
-    )
+    ),
   );
 };
 

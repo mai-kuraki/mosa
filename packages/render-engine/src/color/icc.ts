@@ -30,10 +30,11 @@ export async function embedSrgbProfile(
   width: number,
   height: number,
   format: "jpeg" | "png" | "tiff",
-  quality = 90
+  quality = 90,
 ): Promise<Buffer> {
-  let pipeline = sharp(buffer, { raw: { width, height, channels: 3 } })
-    .withMetadata({ icc: "srgb" });
+  let pipeline = sharp(buffer, { raw: { width, height, channels: 3 } }).withMetadata({
+    icc: "srgb",
+  });
 
   switch (format) {
     case "jpeg":

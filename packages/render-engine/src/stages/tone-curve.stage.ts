@@ -19,7 +19,7 @@ export class ToneCurveStage implements RenderStage {
     private backend: RenderBackend,
     rPoints: [number, number][],
     gPoints?: [number, number][],
-    bPoints?: [number, number][]
+    bPoints?: [number, number][],
   ) {
     this.curve = {
       r: ToneCurveStage.buildLookupTable(rPoints),
@@ -29,12 +29,7 @@ export class ToneCurveStage implements RenderStage {
   }
 
   async execute(input: Buffer, context: StageContext): Promise<Buffer> {
-    return this.backend.applyToneCurve(
-      input,
-      context.width,
-      context.height,
-      this.curve
-    );
+    return this.backend.applyToneCurve(input, context.width, context.height, this.curve);
   }
 
   /**

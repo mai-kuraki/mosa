@@ -28,7 +28,7 @@ export class RenderPipeline {
    */
   async execute(
     inputBuffer: Buffer,
-    config: PipelineConfig
+    config: PipelineConfig,
   ): Promise<Result<PipelineResult, string>> {
     let currentBuffer = inputBuffer;
 
@@ -45,8 +45,7 @@ export class RenderPipeline {
       try {
         currentBuffer = await stage.execute(currentBuffer, context);
       } catch (error) {
-        const message =
-          error instanceof Error ? error.message : String(error);
+        const message = error instanceof Error ? error.message : String(error);
         return err(`Stage "${stage.name}" failed: ${message}`);
       }
     }

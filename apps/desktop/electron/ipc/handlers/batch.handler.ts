@@ -4,11 +4,14 @@ import { createLogger } from "../../services/logger.service";
 
 const logger = createLogger("ipc:batch");
 
-export async function handleBatchStart(
-  data: { imageIds: string[]; settings: BatchSettings }
-): Promise<Result<{ batchId: string }, string>> {
+export async function handleBatchStart(data: {
+  imageIds: string[];
+  settings: BatchSettings;
+}): Promise<Result<{ batchId: string }, string>> {
   try {
-    logger.info(`Starting batch: ${data.imageIds.length} images with preset "${data.settings.presetId}"`);
+    logger.info(
+      `Starting batch: ${data.imageIds.length} images with preset "${data.settings.presetId}"`,
+    );
     // TODO: Spawn batch worker, return batch ID
     const batchId = crypto.randomUUID();
     return ok({ batchId });
@@ -19,9 +22,7 @@ export async function handleBatchStart(
   }
 }
 
-export async function handleBatchCancel(
-  data: { batchId: string }
-): Promise<Result<void, string>> {
+export async function handleBatchCancel(data: { batchId: string }): Promise<Result<void, string>> {
   try {
     logger.info(`Cancelling batch: ${data.batchId}`);
     // TODO: Terminate batch worker

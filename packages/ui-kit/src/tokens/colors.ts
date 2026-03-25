@@ -19,7 +19,7 @@ export const tokens = {
     },
     // Accent
     accent: {
-      primary: "#c85a3a",     // Warm terracotta (Bauhaus-inspired)
+      primary: "#c85a3a", // Warm terracotta (Bauhaus-inspired)
       hover: "#d46a4a",
       active: "#b84a2a",
     },

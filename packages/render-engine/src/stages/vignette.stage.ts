@@ -30,9 +30,7 @@ export class VignetteStage implements RenderStage {
         const offset = (y * width + x) * channels;
 
         for (let c = 0; c < channels; c++) {
-          output[offset + c] = Math.round(
-            Math.max(0, output[offset + c] * factor)
-          );
+          output[offset + c] = Math.round(Math.max(0, output[offset + c] * factor));
         }
       }
     }

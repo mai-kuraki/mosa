@@ -15,7 +15,12 @@ export interface RenderBackend {
   }>;
 
   /** Apply a 3x3 color matrix transformation. */
-  applyColorMatrix(buffer: Buffer, width: number, height: number, matrix: number[][]): Promise<Buffer>;
+  applyColorMatrix(
+    buffer: Buffer,
+    width: number,
+    height: number,
+    matrix: number[][],
+  ): Promise<Buffer>;
 
   /** Apply a 3D LUT to the image buffer. */
   applyLut3D(
@@ -23,7 +28,7 @@ export interface RenderBackend {
     width: number,
     height: number,
     lutData: Float32Array,
-    lutSize: number
+    lutSize: number,
   ): Promise<Buffer>;
 
   /** Apply a 1D tone curve (256-entry lookup per channel). */
@@ -31,7 +36,7 @@ export interface RenderBackend {
     buffer: Buffer,
     width: number,
     height: number,
-    curve: { r: Uint8Array; g: Uint8Array; b: Uint8Array }
+    curve: { r: Uint8Array; g: Uint8Array; b: Uint8Array },
   ): Promise<Buffer>;
 
   /** Composite an overlay layer onto the base image. */
@@ -40,7 +45,7 @@ export interface RenderBackend {
     overlay: Buffer,
     width: number,
     height: number,
-    opacity: number
+    opacity: number,
   ): Promise<Buffer>;
 
   /** Encode a raw pixel buffer to a specific output format. */
@@ -49,7 +54,7 @@ export interface RenderBackend {
     width: number,
     height: number,
     format: "jpeg" | "png" | "tiff",
-    quality?: number
+    quality?: number,
   ): Promise<Buffer>;
 
   /** Resize an image buffer. */
@@ -58,6 +63,6 @@ export interface RenderBackend {
     width: number,
     height: number,
     targetWidth: number,
-    targetHeight: number
+    targetHeight: number,
   ): Promise<Buffer>;
 }

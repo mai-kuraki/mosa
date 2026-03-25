@@ -11,9 +11,14 @@ export class WatermarkStage implements RenderStage {
 
   constructor(
     private watermarkPath: string,
-    private position: "bottom-right" | "bottom-left" | "top-right" | "top-left" | "center" = "bottom-right",
+    private position:
+      | "bottom-right"
+      | "bottom-left"
+      | "top-right"
+      | "top-left"
+      | "center" = "bottom-right",
     private opacity: number = 0.8,
-    private scale: number = 0.15
+    private scale: number = 0.15,
   ) {}
 
   async execute(input: Buffer, context: StageContext): Promise<Buffer> {
@@ -54,7 +59,7 @@ export class WatermarkStage implements RenderStage {
     imgH: number,
     wmW: number,
     wmH: number,
-    margin: number
+    margin: number,
   ): { left: number; top: number } {
     switch (this.position) {
       case "bottom-right":

@@ -12,10 +12,7 @@ const logger = createLogger("thumbnail");
  * Generate a 256px thumbnail for an image and save to cache directory.
  * Returns the path to the generated thumbnail.
  */
-export async function generateThumbnail(
-  imagePath: string,
-  imageHash?: string
-): Promise<string> {
+export async function generateThumbnail(imagePath: string, imageHash?: string): Promise<string> {
   const hash = imageHash ?? (await getFileHash(imagePath));
   const bucket = hash.slice(0, 2);
 
@@ -46,10 +43,7 @@ export async function generateThumbnail(
 /**
  * Generate a larger preview (1920px) for the editor view.
  */
-export async function generatePreview(
-  imagePath: string,
-  maxSize = 1920
-): Promise<Buffer> {
+export async function generatePreview(imagePath: string, maxSize = 1920): Promise<Buffer> {
   return sharp(imagePath)
     .resize(maxSize, maxSize, { fit: "inside", withoutEnlargement: true })
     .jpeg({ quality: 85 })

@@ -13,7 +13,8 @@
     "lint": "turbo lint",
     "test": "turbo test",
     "typecheck": "turbo typecheck",
-    "clean": "turbo clean"
+    "clean": "turbo clean",
+    "format": "prettier --write \"apps/**/*.{ts,tsx,less,json}\" \"packages/**/*.{ts,tsx,json}\" \"tooling/**/*.{js,json}\""
   },
   "pnpm": {
     "onlyBuiltDependencies": [
@@ -25,6 +26,7 @@
     ]
   },
   "devDependencies": {
+    "prettier": "^3.8.1",
     "turbo": "^2.5.0"
   }
 }

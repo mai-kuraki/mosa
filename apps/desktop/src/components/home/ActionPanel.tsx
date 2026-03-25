@@ -1,7 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import TextType from "../reactbits/TextType";
-import FocusIcon from '../../../resources/icons/focus.png';
+import FocusIcon from "../../../resources/icons/focus.png";
 import styles from "./ActionPanel.module.less";
 
 const ActionPanel: React.FC = () => {
@@ -38,13 +38,18 @@ const ActionPanel: React.FC = () => {
             cursorCharacter="_"
             cursorClassName={styles.sloganCursor}
           />
-          <p className={styles.sloganCn}>重构光的逻辑，<br/>解构色彩边界，重新定义决定性瞬间。</p>
+          <p className={styles.sloganCn}>
+            重构光的逻辑，
+            <br />
+            解构色彩边界，重新定义决定性瞬间。
+          </p>
         </div>
-        <div style={{ flex: 1 }}/>
+        <div style={{ flex: 1 }} />
         {/* Actions */}
         <div className={styles.actions}>
           <button className={styles.btnPrimary} onClick={handleImport}>
-            开始重构影调<img style={{ width: 22, marginLeft: 10 }} src="/icons/arrow-right.svg" />
+            开始重构影调
+            <img style={{ width: 22, marginLeft: 10 }} src="/icons/arrow-right.svg" />
           </button>
         </div>
       </div>

@@ -42,16 +42,16 @@ export type IpcContract<TReq, TRes> = {
 export type IpcRequest<T> = T extends IpcContract<infer R, unknown> ? R : never;
 
 /** Extract response type from a contract */
-export type IpcResponse<T> = T extends IpcContract<unknown, infer R>
-  ? Result<R, string>
-  : never;
+export type IpcResponse<T> = T extends IpcContract<unknown, infer R> ? Result<R, string> : never;
 
 /** Handler function signature for Main process */
-export type IpcHandler<T> = T extends IpcContract<infer Req, infer Res>
-  ? (request: Req) => Promise<Result<Res, string>>
-  : never;
+export type IpcHandler<T> =
+  T extends IpcContract<infer Req, infer Res>
+    ? (request: Req) => Promise<Result<Res, string>>
+    : never;
 
 /** Invoker function signature for Renderer process */
-export type IpcInvoker<T> = T extends IpcContract<infer Req, infer Res>
-  ? (request: Req) => Promise<Result<Res, string>>
-  : never;
+export type IpcInvoker<T> =
+  T extends IpcContract<infer Req, infer Res>
+    ? (request: Req) => Promise<Result<Res, string>>
+    : never;

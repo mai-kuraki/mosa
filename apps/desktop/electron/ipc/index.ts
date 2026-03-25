@@ -1,7 +1,15 @@
 import { ipcMain } from "electron";
 import { createLogger } from "../services/logger.service";
-import { handleImageApplyPreset, handleImageGetMetadata, handleImageGetPreview } from "./handlers/image.handler";
-import { handleCatalogImportFolder, handleCatalogGetImages, handleCatalogGetFolders } from "./handlers/catalog.handler";
+import {
+  handleImageApplyPreset,
+  handleImageGetMetadata,
+  handleImageGetPreview,
+} from "./handlers/image.handler";
+import {
+  handleCatalogImportFolder,
+  handleCatalogGetImages,
+  handleCatalogGetFolders,
+} from "./handlers/catalog.handler";
 import { handleBatchStart, handleBatchCancel } from "./handlers/batch.handler";
 import { handleExportSingle } from "./handlers/export.handler";
 import { handleSettingsGet, handleSettingsSet } from "./handlers/settings.handler";

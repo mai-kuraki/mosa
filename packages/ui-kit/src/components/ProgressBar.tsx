@@ -7,12 +7,7 @@ interface ProgressBarProps {
   className?: string;
 }
 
-const ProgressBar: React.FC<ProgressBarProps> = ({
-  value,
-  max = 100,
-  label,
-  className = "",
-}) => {
+const ProgressBar: React.FC<ProgressBarProps> = ({ value, max = 100, label, className = "" }) => {
   const percent = Math.round((value / max) * 100);
 
   return (

@@ -70,9 +70,7 @@ export class CubeParser {
 
     const expectedCount = size * size * size * 3;
     if (values.length !== expectedCount) {
-      return err(
-        `LUT data mismatch: expected ${expectedCount} values, got ${values.length}`
-      );
+      return err(`LUT data mismatch: expected ${expectedCount} values, got ${values.length}`);
     }
 
     return ok({
