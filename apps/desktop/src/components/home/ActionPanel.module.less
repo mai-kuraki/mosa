@@ -45,7 +45,7 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
-  margin-top: 30px;
+  margin-top: 130px;
 }
 
 .sloganEn {
@@ -54,6 +54,13 @@
   line-height: 1;
   color: #1E1E1E;
   margin-bottom: 30px;
+  min-height: 140px;
+}
+
+.sloganCursor {
+  font-weight: 300;
+  color: var(--accent-primary);
+  opacity: 1;
 }
 
 .sloganCn {
@@ -66,7 +73,6 @@
 /* ── Actions ── */
 .actions {
   display: flex;
-  flex-direction: column;
   justify-content: center;
   align-items: center;
   gap: 14px;
@@ -76,54 +82,24 @@
 }
 
 .btnPrimary {
-  width: 320px;
+  width: 400px;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 16px 24px;
+  padding: 18px 24px;
+  height: 60px;
   background-color: var(--fg-primary);
   color: #FFFFFF;
   border: 2px solid var(--fg-primary);
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 600;
   letter-spacing: 0.12em;
   cursor: pointer;
   transition: background-color 0.2s, color 0.2s, transform 0.1s;
-  border-radius: 6px;
+  border-radius: 8px;
 }
 
 .btnPrimary:hover {
   background-color: #000000;
   border-color: #000000;
-}
-
-.btnPrimary:active {
-  transform: scale(0.98);
-}
-
-
-.btnOutline {
-  width: 320px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 14px 24px;
-  background-color: transparent;
-  color: var(--fg-primary);
-  border: 1.5px solid var(--border-default);
-  font-size: 13px;
-  font-weight: 500;
-  letter-spacing: 0.1em;
-  cursor: pointer;
-  transition: border-color 0.2s, background-color 0.2s, transform 0.1s;
-  border-radius: 6px;
-}
-
-.btnOutline:hover {
-  border-color: var(--fg-primary);
-  background-color: rgba(0, 0, 0, 0.02);
-}
-
-.btnOutline:active {
-  transform: scale(0.98);
 }

@@ -16,7 +16,7 @@ const Sidebar: React.FC = () => {
         <NavLink
           key={item.to}
           to={item.to}
-          className={({ isActive }) =>
+          className={({ isActive }: { isActive: boolean }) =>
             `${styles.link} ${isActive ? styles.linkActive : ""}`
           }
           title={item.label}
