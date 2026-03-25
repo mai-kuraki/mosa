@@ -1,7 +1,7 @@
 .panel {
   height: 100%;
   background-color: #ffffff;
-  padding: 48px 40px 178px;
+  padding: 48px 40px 160px;
   position: relative;
   display: flex;
 }
@@ -20,23 +20,23 @@
   gap: 14px;
   position: absolute;
   position: absolute;
-  left: 45px;
-  bottom: -42px;
-  opacity: 0.1;
+  left: -28px;
+  top: -42px;
+  opacity: 0.06;
   pointer-events: none;
 }
 
 .logo {
-  width: 180px;
-  height: 180px;
+  width: 220px;
+  height: 220px;
 }
 
 .productName {
-  font-size: 105px;
+  font-size: 124px;
   font-weight: 800;
   color: var(--fg-primary);
   line-height: 1;
-  transform: translateY(-36px);
+  transform: translateY(-48px);
   font-style: italic;
 }
 
@@ -45,7 +45,7 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
-  margin-top: 130px;
+  margin-top: 180px;
 }
 
 .sloganEn {
@@ -105,4 +105,32 @@
 .btnPrimary:hover {
   background-color: #000000;
   border-color: #000000;
+}
+
+/* ── Bottom-left menu ── */
+.menuAnchor {
+  position: absolute;
+  left: 15px;
+  bottom: 15px;
+}
+
+.menuTrigger {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+  transition: background-color 0.15s;
+
+  &:hover {
+    background-color: var(--bg-secondary);
+  }
+
+  &[data-state="open"] {
+    background-color: var(--bg-secondary);
+  }
 }

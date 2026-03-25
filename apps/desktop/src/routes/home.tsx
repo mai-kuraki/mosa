@@ -12,6 +12,9 @@ const HomePage: React.FC = () => {
       {/* Invisible drag region for native traffic lights */}
       <div className={styles.dragRegion} />
 
+      <div className={styles.actionArea}>
+        <ActionPanel />
+      </div>
       <div className={styles.compareArea}>
         <CompareSlider
           beforeSrc={beforeImg}
@@ -19,9 +22,6 @@ const HomePage: React.FC = () => {
           beforeLabel="RAW"
           afterLabel="M9"
         />
-      </div>
-      <div className={styles.actionArea}>
-        <ActionPanel />
       </div>
     </div>
   );

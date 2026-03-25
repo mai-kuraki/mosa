@@ -1,14 +1,19 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import { Images, Clock, Settings, ArrowRight, Menu } from "lucide-react";
 import TextType from "../reactbits/TextType";
-import FocusIcon from "../../../resources/icons/focus.png";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "../ui/DropdownMenu";
 import styles from "./ActionPanel.module.less";
 
 const ActionPanel: React.FC = () => {
   const navigate = useNavigate();
 
   const handleImport = () => {
-    // TODO: Open folder dialog via IPC, then navigate to library
     navigate("/library");
   };
 
@@ -49,9 +54,34 @@ const ActionPanel: React.FC = () => {
         <div className={styles.actions}>
           <button className={styles.btnPrimary} onClick={handleImport}>
             开始重构影调
-            <img style={{ width: 22, marginLeft: 10 }} src="/icons/arrow-right.svg" />
+            <ArrowRight size={20} style={{ marginLeft: 10 }} />
           </button>
         </div>
+      </div>
+
+      {/* Bottom-left menu */}
+      <div className={styles.menuAnchor}>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button className={styles.menuTrigger} aria-label="菜单">
+              <Menu size={20} />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent side="top" align="start" sideOffset={10}>
+            <DropdownMenuItem onSelect={() => navigate("/library")}>
+              <Images size={16} />
+              图库
+            </DropdownMenuItem>
+            <DropdownMenuItem onSelect={() => navigate("/timeline")}>
+              <Clock size={16} />
+              时光
+            </DropdownMenuItem>
+            <DropdownMenuItem onSelect={() => navigate("/settings")}>
+              <Settings size={16} />
+              设置
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </div>
   );

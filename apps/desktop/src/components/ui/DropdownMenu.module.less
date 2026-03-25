@@ -1,0 +1,68 @@
+.content {
+  min-width: 180px;
+  background-color: #ffffff;
+  border: 1px solid var(--border-default);
+  border-radius: 8px;
+  padding: 6px;
+  box-shadow:
+    0 8px 30px rgba(0, 0, 0, 0.08),
+    0 2px 8px rgba(0, 0, 0, 0.04);
+  z-index: 100;
+
+  /* Radix animation */
+  animation-duration: 0.18s;
+  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+
+  &[data-state="open"] {
+    animation-name: slideUp;
+  }
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: 5px;
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--fg-primary);
+  cursor: pointer;
+  outline: none;
+  transition: background-color 0.1s;
+  user-select: none;
+
+  &[data-highlighted] {
+    background-color: var(--bg-secondary);
+  }
+
+  &[data-disabled] {
+    color: var(--fg-muted);
+    pointer-events: none;
+  }
+}
+
+.separator {
+  height: 1px;
+  margin: 4px 0;
+  background-color: var(--border-default);
+}
+
+.label {
+  padding: 6px 12px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--fg-muted);
+  letter-spacing: 0.04em;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
