@@ -1,5 +1,7 @@
 import React, { useEffect, useCallback, useState } from "react";
 import { FolderPlus, ImagePlus, Images, Trash2, Folder, LayoutGrid, List } from "lucide-react";
+import * as Tabs from "@radix-ui/react-tabs";
+import * as ToggleGroup from "@radix-ui/react-toggle-group";
 import { IPC_CHANNELS } from "@mosa/ipc-bridge";
 import type { FolderInfo, CatalogImage } from "@mosa/ipc-bridge/src/contracts/catalog.contract";
 import TextType from "../components/reactbits/TextType";
@@ -51,13 +53,13 @@ const LibraryPage: React.FC = () => {
   const { folders, images, isImporting, importProgress, setImages, setFolders, setImporting, setImportProgress } =
     useCatalogStore();
   
-  const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null);
+  const [selectedFolderId, setSelectedFolderId] = useState("all");
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
 
   // Filtered images by selected folder
-  const filteredImages = selectedFolderId
-    ? images.filter((img) => img.folderId === selectedFolderId)
-    : images;
+  const filteredImages = selectedFolderId === "all"
+    ? images
+    : images.filter((img) => img.folderId === selectedFolderId);
 
   // Load all data
   const loadData = useCallback(async () => {
@@ -136,7 +138,7 @@ const LibraryPage: React.FC = () => {
       ? Math.round((importProgress.processed / importProgress.total) * 100)
       : 0;
 
-  const hasData = images.length > 0 || folders.length > 0;
+  const hasData = images.length > 0;
 
   // Empty state — no data at all
   if (!hasData) {
@@ -194,94 +196,84 @@ const LibraryPage: React.FC = () => {
   const userFolders = folders.filter((f) => !isWorkspaceFolder(f));
 
   return (
-    <div className={styles.page}>
-      {/* Left sidebar — folder list */}
-      <div className={styles.sidebar}>
-        <div className={styles.sidebarHeader}>
-          <button className={classnames(styles.sidebarBtn, styles.sidebarBtnPrimary)} onClick={handleImportFiles} disabled={isImporting} title="导入图片">
-            <ImagePlus size={14} />
-            导入图片&nbsp;&nbsp;&nbsp;
-          </button>
-          <button className={styles.sidebarBtn} onClick={handleImportFolder} disabled={isImporting} title="添加文件夹">
-            <FolderPlus size={14} />
-            添加文件夹
-          </button>
-        </div>
-
-        <div className={styles.folderList}>
-          <button
-            className={`${styles.folderItem} ${selectedFolderId === null ? styles.folderItemActive : ""}`}
-            onClick={() => setSelectedFolderId(null)}
-          >
-            <Images size={14} />
-            <span className={styles.folderName}>全部</span>
-            <span className={styles.folderCount}>{images.length}</span>
-          </button>
-
-          {workspaceFolders.map((folder) => (
-            <button
-              key={folder.id}
-              className={`${styles.folderItem} ${selectedFolderId === folder.id ? styles.folderItemActive : ""}`}
-              onClick={() => setSelectedFolderId(folder.id)}
-            >
-              <Folder size={14} />
-              <span className={styles.folderName}>工作区</span>
-              <span className={styles.folderCount}>{folder.imageCount}</span>
+    <Tabs.Root value={selectedFolderId} onValueChange={setSelectedFolderId} asChild>
+      <div className={styles.page}>
+        {/* Left sidebar — folder list */}
+        <div className={styles.sidebar}>
+          <div className={styles.sidebarHeader}>
+            <button className={classnames(styles.sidebarBtn, styles.sidebarBtnPrimary)} onClick={handleImportFiles} disabled={isImporting} title="导入图片">
+              <ImagePlus size={14} />
+              导入图片&nbsp;&nbsp;&nbsp;
             </button>
-          ))}
-
-          {userFolders.map((folder) => (
-            <button
-              key={folder.id}
-              className={`${styles.folderItem} ${selectedFolderId === folder.id ? styles.folderItemActive : ""}`}
-              onClick={() => setSelectedFolderId(folder.id)}
-            >
-              <Folder size={14} />
-              <span className={styles.folderName}>{folder.name}</span>
-              <span className={styles.folderCount}>{folder.imageCount}</span>
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Right content */}
-      <div className={styles.content}>
-        {/* Content header with view toggle */}
-        <div className={styles.contentHeader}>
-          <span className={styles.contentTitle}>{filteredImages.length} 张图片</span>
-          <div className={styles.viewToggle}>
-            <button
-              className={`${styles.viewToggleBtn} ${viewMode === "grid" ? styles.viewToggleBtnActive : ""}`}
-              onClick={() => setViewMode("grid")}
-              title="网格视图"
-            >
-              <LayoutGrid size={14} />
-            </button>
-            <button
-              className={`${styles.viewToggleBtn} ${viewMode === "list" ? styles.viewToggleBtnActive : ""}`}
-              onClick={() => setViewMode("list")}
-              title="列表视图"
-            >
-              <List size={14} />
+            <button className={styles.sidebarBtn} onClick={handleImportFolder} disabled={isImporting} title="添加文件夹">
+              <FolderPlus size={14} />
+              添加文件夹
             </button>
           </div>
+
+          <Tabs.List className={styles.folderList}>
+            <Tabs.Trigger value="all" className={styles.folderItem}>
+              <Images size={14} />
+              <span className={styles.folderName}>全部</span>
+              <span className={styles.folderCount}>{images.length}</span>
+            </Tabs.Trigger>
+
+            {workspaceFolders.map((folder) => (
+              <Tabs.Trigger key={folder.id} value={folder.id} className={styles.folderItem}>
+                <Folder size={14} />
+                <span className={styles.folderName}>工作区</span>
+                <span className={styles.folderCount}>{folder.imageCount}</span>
+              </Tabs.Trigger>
+            ))}
+
+            {userFolders.map((folder) => (
+              <Tabs.Trigger key={folder.id} value={folder.id} className={styles.folderItem}>
+                <Folder size={14} />
+                <span className={styles.folderName}>{folder.name}</span>
+                <span className={styles.folderCount}>{folder.imageCount}</span>
+              </Tabs.Trigger>
+            ))}
+          </Tabs.List>
         </div>
 
-        {/* Progress bar */}
-        {isImporting && importProgress && (
-          <div className={styles.progressTrack}>
-            <div className={styles.progressBar} style={{ width: `${progressPercent}%` }} />
+        {/* Right content */}
+        <div className={styles.content}>
+          {/* Content header with view toggle */}
+          <div className={styles.contentHeader}>
+            <span className={styles.contentTitle}>{filteredImages.length} 张图片</span>
+            <ToggleGroup.Root
+              type="single"
+              value={viewMode}
+              onValueChange={(val) => { if (val) setViewMode(val as ViewMode); }}
+              className={styles.viewToggle}
+            >
+              <ToggleGroup.Item value="grid" className={styles.viewToggleBtn} title="网格视图">
+                <LayoutGrid size={18} />
+              </ToggleGroup.Item>
+              <ToggleGroup.Item value="list" className={styles.viewToggleBtn} title="列表视图">
+                <List size={18} />
+              </ToggleGroup.Item>
+            </ToggleGroup.Root>
           </div>
-        )}
 
-        {filteredImages.length === 0 ? (
-          <div className={styles.empty}>
-            <div className={styles.emptyContent}>
-              <Images size={40} strokeWidth={1} className={styles.emptyIcon} />
-              <p className={styles.emptyTitle}>该文件夹暂无图片</p>
+          {/* Progress bar */}
+          {isImporting && importProgress && (
+            <div className={styles.emptyProgress}>
+              <div className={styles.progressTrack}>
+                <div className={styles.progressBar} style={{ width: `${progressPercent}%` }} />
+              </div>
+              <span className={styles.emptyProgressText}>{importProgress.processed} / {importProgress.total}</span>
             </div>
-          </div>
-        ) : viewMode === "grid" ? (
+          )}
+
+          {filteredImages.length === 0 ? (
+            <div className={styles.empty}>
+              <div className={styles.emptyContent}>
+                <Images size={40} strokeWidth={1} className={styles.emptyIcon} />
+                <p className={styles.emptyTitle}>该文件夹暂无图片</p>
+              </div>
+            </div>
+          ) : viewMode === "grid" ? (
           /* ── Grid view ── */
           <div className={styles.gridContainer}>
             <div className={styles.grid}>
@@ -359,6 +351,7 @@ const LibraryPage: React.FC = () => {
         )}
       </div>
     </div>
+    </Tabs.Root>
   );
 };
 
