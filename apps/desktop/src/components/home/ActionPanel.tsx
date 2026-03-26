@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { Images, Clock, Settings, ArrowRight, Menu } from "lucide-react";
+import { Images, Sparkles, Settings, ArrowRight, Menu } from "lucide-react";
 import TextType from "../reactbits/TextType";
 import {
   DropdownMenu,
@@ -14,7 +14,7 @@ const ActionPanel: React.FC = () => {
   const navigate = useNavigate();
 
   const handleImport = () => {
-    navigate("/library");
+    navigate("/workspace");
   };
 
   return (
@@ -73,7 +73,7 @@ const ActionPanel: React.FC = () => {
               图库
             </DropdownMenuItem>
             <DropdownMenuItem onSelect={() => navigate("/timeline")}>
-              <Clock size={16} />
+              <Sparkles size={16} />
               时光
             </DropdownMenuItem>
             <DropdownMenuItem onSelect={() => navigate("/settings")}>

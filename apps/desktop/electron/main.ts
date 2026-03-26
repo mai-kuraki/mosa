@@ -1,10 +1,15 @@
-import { app, BrowserWindow, shell } from "electron";
+import { app, BrowserWindow, protocol, shell } from "electron";
 import { join } from "path";
+import { readFile } from "fs/promises";
 import { createLogger } from "./services/logger.service";
 
 const logger = createLogger("main");
 
 let mainWindow: BrowserWindow | null = null;
+
+export function getMainWindow(): BrowserWindow | null {
+  return mainWindow;
+}
 
 function createWindow(): void {
   mainWindow = new BrowserWindow({
@@ -44,22 +49,42 @@ function createWindow(): void {
   }
 }
 
+// Register mosa:// as a privileged scheme (must be called before app ready)
+protocol.registerSchemesAsPrivileged([
+  { scheme: "mosa", privileges: { standard: false, secure: true, supportFetchAPI: true } },
+]);
+
 app.whenReady().then(async () => {
   logger.info("Mosa starting...");
 
-  createWindow();
+  // Handle mosa://thumbnail/<absolute-path> → serve local file
+  protocol.handle("mosa", async (req) => {
+    const filePath = decodeURIComponent(req.url.replace(/^mosa:\/\/[^/]+/, ""));
+    try {
+      const data = await readFile(filePath);
+      return new Response(data, {
+        headers: { "Content-Type": "image/jpeg" },
+      });
+    } catch (e) {
+      logger.error(`Protocol handler failed for: ${filePath}`, e);
+      return new Response("Not found", { status: 404 });
+    }
+  });
 
-  // Initialize database and IPC handlers asynchronously after window is created
-  import("./services/database.service")
-    .then((m) => m.initDatabase())
-    .then(() => {
-      logger.info("Database initialized");
-      return import("./ipc").then((m) => m.registerIpcHandlers());
-    })
-    .then(() => {
-      logger.info("IPC handlers registered");
-    })
-    .catch((e) => logger.error("Background init failed:", e));
+  // Initialize database and IPC handlers BEFORE creating window
+  try {
+    const { initDatabase } = await import("./services/database.service");
+    await initDatabase();
+    logger.info("Database initialized");
+
+    const { registerIpcHandlers } = await import("./ipc");
+    registerIpcHandlers();
+    logger.info("IPC handlers registered");
+  } catch (e) {
+    logger.error("Background init failed:", e);
+  }
+
+  createWindow();
 
   app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) {

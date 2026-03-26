@@ -7,8 +7,10 @@ import {
 } from "./handlers/image.handler";
 import {
   handleCatalogImportFolder,
+  handleCatalogImportFiles,
   handleCatalogGetImages,
   handleCatalogGetFolders,
+  handleCatalogRemoveImage,
 } from "./handlers/catalog.handler";
 import { handleBatchStart, handleBatchCancel } from "./handlers/batch.handler";
 import { handleExportSingle } from "./handlers/export.handler";
@@ -30,8 +32,10 @@ export function registerIpcHandlers(): void {
 
   // Catalog management
   ipcMain.handle(IPC_CHANNELS.CATALOG_IMPORT_FOLDER, (_e, data) => handleCatalogImportFolder(data));
+  ipcMain.handle(IPC_CHANNELS.CATALOG_IMPORT_FILES, (_e, data) => handleCatalogImportFiles(data));
   ipcMain.handle(IPC_CHANNELS.CATALOG_GET_IMAGES, (_e, data) => handleCatalogGetImages(data));
   ipcMain.handle(IPC_CHANNELS.CATALOG_GET_FOLDERS, () => handleCatalogGetFolders());
+  ipcMain.handle(IPC_CHANNELS.CATALOG_REMOVE_IMAGE, (_e, data) => handleCatalogRemoveImage(data));
 
   // Batch processing
   ipcMain.handle(IPC_CHANNELS.BATCH_START, (_e, data) => handleBatchStart(data));

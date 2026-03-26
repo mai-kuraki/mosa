@@ -7,10 +7,21 @@
   overflow: hidden;
 }
 
-.content {
+.appLayout {
   display: flex;
   flex: 1;
+  position: relative;
   overflow: hidden;
+}
+
+.dragRegion {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 40px;
+  -webkit-app-region: drag;
+  z-index: 100;
 }
 
 .main {

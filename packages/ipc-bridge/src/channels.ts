@@ -11,6 +11,7 @@ export const IPC_CHANNELS = {
 
   // Catalog management
   CATALOG_IMPORT_FOLDER: "catalog:import-folder",
+  CATALOG_IMPORT_FILES: "catalog:import-files",
   CATALOG_GET_IMAGES: "catalog:get-images",
   CATALOG_GET_FOLDERS: "catalog:get-folders",
   CATALOG_REMOVE_IMAGE: "catalog:remove-image",

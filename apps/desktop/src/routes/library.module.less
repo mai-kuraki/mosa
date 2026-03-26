@@ -1,36 +1,572 @@
 .page {
   height: 100%;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  background-color: var(--bg-primary);
 }
 
-.header {
-  height: 48px;
+/* ── Left sidebar — folder list ── */
+.sidebar {
+  width: 160px;
+  min-width: 160px;
+  display: flex;
+  flex-direction: column;
+  height: calc(~'100% - 100px');
+  margin-top: 50px;
+  border-radius: 10px;
+  -webkit-app-region: no-drag;
+  position: relative;
+  z-index: 101;
+}
+
+.sidebarHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sidebarBtn {
+  width: 100%;
   display: flex;
   align-items: center;
-  padding: 0 16px;
-  border-bottom: 1px solid var(--border-default);
+  justify-content: center;
+  height: 36px;
+  border: none;
+  border-radius: 6px;
+  background-color: var(--bg-secondary);
+  color: var(--fg-secondary);
+  cursor: pointer;
+  transition: all 250ms;
+  gap: 10px;
+  &:hover {
+    background-color: var(--bg-secondary);
+    color: var(--fg-secondary);
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
 }
 
-.title {
-  font-size: 14px;
+.sidebarBtnPrimary{
+  background-color: #000000;
+  color: #ffffff;
+  &:hover {
+    background-color: #000000;
+    color: #ffffff;
+  }
+}
+
+.folderList {
+  flex: 1;
+  overflow-y: auto;
+  padding: 18px 0px;
+}
+
+.folderItem {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 12px;
+  border: none;
+  border-radius: 6px;
+  background: none;
+  color: var(--fg-secondary);
+  font-size: 13px;
+  cursor: pointer;
+  text-align: left;
+  transition:
+    background-color 0.15s,
+    color 0.15s;
+  overflow: hidden;
+  &:hover {
+    color: var(--fg-primary);
+  }
+}
+
+.folderItemActive {
+  background-color: var(--bg-secondary);
+  color: var(--fg-primary);
   font-weight: 500;
 }
 
+.folderName {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.folderCount {
+  font-size: 11px;
+  color: var(--fg-muted);
+  flex-shrink: 0;
+}
+
+/* ── Right content area ── */
+.content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding-top: 50px;
+  padding-left: 15px;
+}
+
+/* ── Content header with view toggle ── */
+.contentHeader {
+  height: 40px;
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  -webkit-app-region: no-drag;
+  position: relative;
+  z-index: 101;
+}
+
+.contentTitle {
+  font-size: 26px;
+  font-weight: bold;
+  color: #000000;
+}
+
+.viewToggle {
+  display: flex;
+  gap: 2px;
+  background-color: var(--bg-secondary);
+  border-radius: 6px;
+  padding: 2px;
+}
+
+.viewToggleBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 38px;
+  border: none;
+  border-radius: 4px;
+  background: none;
+  color: var(--fg-muted);
+  cursor: pointer;
+  transition:
+    background-color 0.15s,
+    color 0.15s;
+
+  &:hover {
+    color: var(--fg-secondary);
+  }
+}
+
+.viewToggleBtnActive {
+  background-color: var(--bg-primary);
+  color: var(--fg-primary);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
+/* ── Progress bar ── */
+.progressTrack {
+  width: 100%;
+  height: 7px;
+  background-color: #fdeaea;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.progressBar {
+  height: 100%;
+  background-color: var(--accent-primary);
+  transition: width 0.3s ease;
+}
+
+/* ── Empty state ── */
 .empty {
   flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--fg-muted);
+  .logoBg{
+    display: flex;
+    align-items: flex-end;
+    gap: 14px;
+    opacity: 0.3;
+    pointer-events: none;
+    .emptyIcon{
+      width: 220px;
+      height: 220px;
+    }
+    .emptyTitle{
+      font-size: 124px;
+      font-weight: 800;
+      color: var(--fg-primary);
+      line-height: 1;
+      transform: translateY(-48px);
+      font-style: italic;
+    }
+  }
+}
+
+.emptyContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   text-align: center;
 }
 
+.emptyIcon {
+  color: var(--fg-muted);
+  opacity: 0.4;
+  margin-bottom: 20px;
+}
+
 .emptyTitle {
-  font-size: 18px;
-  margin-bottom: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--fg-secondary);
+  margin-bottom: 6px;
 }
 
 .emptyHint {
+  font-size: 24px;
+  color: #666666;
+  margin-bottom: 50px;
+  .textCursor {
+    font-weight: 300;
+    color: var(--accent-primary);
+    opacity: 1;
+  }
+}
+
+.emptyActions {
+  display: flex;
+  gap: 20px;
+}
+
+.emptyBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-weight: bold;
   font-size: 14px;
+  color: #999999;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  border: 2px solid #e8e8e8;
+  transition: all 0.25s;
+  width: 180px;
+  height: 48px;
+  background: none;
+  &:hover {
+    background-color: #fafafa;
+    color: #333333;
+  }
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    &:hover {
+      background: none;
+      color: #999999;
+    }
+  }
+}
+
+.emptyBtnPrimary {
+  background-color: var(--fg-primary);
+  color: #ffffff;
+  border: 2px solid var(--fg-primary);
+  &:hover {
+    color: #ffffff;
+    background-color: #000000;
+  }
+  &:disabled {
+    background-color: var(--fg-muted);
+    border-color: var(--fg-muted);
+  }
+}
+
+.emptyProgress {
+  position: fixed;
+  left: 0;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  pointer-events: none;
+}
+
+.emptyProgressText {
+  font-size: 12px;
+  color: var(--fg-muted);
+}
+
+/* ── Image grid ── */
+.gridContainer {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px 16px 20px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.card {
+  position: relative;
+  aspect-ratio: 3 / 2;
+  border-radius: 6px;
+  overflow: hidden;
+  background-color: var(--bg-secondary);
+  cursor: pointer;
+
+  &:hover .cardOverlay {
+    opacity: 1;
+  }
+
+  &:hover .deleteBtn {
+    opacity: 1;
+  }
+}
+
+.cardImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.cardOverlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 8px 10px;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.5));
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.cardName {
+  font-size: 11px;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+}
+
+.deleteBtn {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 6px;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: #ffffff;
+  cursor: pointer;
+  opacity: 0;
+  transition:
+    opacity 0.15s,
+    background-color 0.15s;
+
+  &:hover {
+    background-color: rgba(220, 38, 38, 0.8);
+  }
+}
+
+/* ── List view ── */
+.listContainer {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 16px 16px;
+}
+
+.listHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 8px;
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--fg-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-bottom: 1px solid var(--border-default);
+  position: sticky;
+  top: 0;
+  background-color: var(--bg-primary);
+  z-index: 1;
+}
+
+.listHeaderThumb {
+  width: 56px;
+  flex-shrink: 0;
+}
+
+.listHeaderName {
+  width: 180px;
+  flex-shrink: 0;
+}
+
+.listHeaderInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.listHeaderParams {
+  flex: 1;
+  min-width: 0;
+}
+
+.listHeaderMeta {
+  width: 80px;
+  flex-shrink: 0;
+}
+
+.listHeaderActions {
+  width: 40px;
+  flex-shrink: 0;
+  text-align: center;
+}
+
+.listRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--border-default);
+  transition: background-color 0.1s;
+
+  &:hover {
+    background-color: var(--bg-secondary);
+  }
+}
+
+.listThumb {
+  width: 56px;
+  height: 38px;
+  flex-shrink: 0;
+  border-radius: 4px;
+  overflow: hidden;
+  background-color: var(--bg-secondary);
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+}
+
+.listName {
+  width: 180px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.listFileName {
+  font-size: 12px;
+  color: var(--fg-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.listFileSize {
+  font-size: 10px;
+  color: var(--fg-muted);
+}
+
+.listInfo {
+  flex: 1;
+  font-size: 11px;
+  color: var(--fg-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+.listParams {
+  flex: 1;
+  font-size: 11px;
+  color: var(--fg-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+.listMeta {
+  width: 80px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.listExt {
+  font-size: 10px;
+  color: var(--fg-muted);
+}
+
+.rawBadge {
+  display: inline-block;
+  padding: 1px 5px;
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--accent-primary);
+  border: 1px solid var(--accent-primary);
+  border-radius: 3px;
+  line-height: 1.4;
+}
+
+.listActions {
+  width: 40px;
+  flex-shrink: 0;
+  display: flex;
+  justify-content: center;
+}
+
+.listDeleteBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border: none;
+  border-radius: 6px;
+  background: none;
+  color: var(--fg-muted);
+  cursor: pointer;
+  opacity: 0;
+  transition:
+    opacity 0.15s,
+    color 0.15s,
+    background-color 0.15s;
+
+  .listRow:hover & {
+    opacity: 1;
+  }
+
+  &:hover {
+    color: var(--accent-primary);
+    background-color: var(--bg-tertiary);
+  }
 }

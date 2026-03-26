@@ -1,38 +1,74 @@
 .nav {
-  width: 64px;
+  width: 100px;
   height: 100%;
-  background-color: var(--bg-secondary);
-  border-right: 1px solid var(--border-default);
+  background-color: var(--bg-primary);
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding-top: 16px;
-  padding-bottom: 16px;
-  gap: 8px;
+  padding-top: 150px;
+  padding-bottom: 25px;
+}
+
+.topGroup {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 36px;
+}
+
+.bottomGroup {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
 }
 
 .link {
-  width: 40px;
-  height: 40px;
+  width: 38px;
+  height: 38px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 8px;
+  border-radius: 10px;
   transition:
     color 0.15s,
     background-color 0.15s;
-  font-size: 10px;
-  font-weight: 500;
   color: var(--fg-muted);
   text-decoration: none;
 }
 
 .link:hover {
-  color: var(--fg-secondary);
-  background-color: var(--bg-tertiary);
+  color: var(--fg-primary);
+  background-color: var(--bg-secondary);
 }
 
 .linkActive {
-  background-color: var(--bg-elevated);
-  color: var(--accent-primary);
+  background-color: var(--bg-secondary);
+  color: var(--fg-primary);
+}
+
+.appLogo {
+  position: fixed;
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  position: absolute;
+  left: 25px;
+  top: 55px;
+  pointer-events: none;
+  .logo {
+    width: 52px;
+    height: 52px;
+  }
+
+  .productName {
+    font-size: 36px;
+    font-weight: 800;
+    color: var(--fg-primary);
+    line-height: 1;
+    transform: translateY(-8px);
+    font-style: italic;
+    display: none;
+  }
 }

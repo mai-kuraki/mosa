@@ -19,15 +19,24 @@ export interface CatalogImage {
   dateTaken?: string;
   cameraMake?: string;
   cameraModel?: string;
+  iso?: number;
+  aperture?: number;
+  shutterSpeed?: string;
+  focalLength?: number;
   rating: number;
   thumbnailPath?: string;
+  folderId?: string;
   createdAt: string;
 }
 
 export interface CatalogContract {
   "catalog:import-folder": IpcContract<
-    { folderPath: string },
+    { folderPath?: string },
     { folder: FolderInfo; importedCount: number }
+  >;
+  "catalog:import-files": IpcContract<
+    { filePaths?: string[] },
+    { importedCount: number; folderId: string }
   >;
   "catalog:get-images": IpcContract<
     { folderId?: string; sortBy?: string; filterRating?: number },

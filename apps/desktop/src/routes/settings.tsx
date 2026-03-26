@@ -1,7 +1,10 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import styles from "./settings.module.less";
 
 const SettingsPage: React.FC = () => {
+  const navigate = useNavigate();
+
   return (
     <div className={styles.page}>
       <header className={styles.header}>
@@ -31,6 +34,22 @@ const SettingsPage: React.FC = () => {
               <p>Apache License 2.0</p>
             </div>
           </section>
+
+          {/* TODO: 临时调试按钮，后续移除 */}
+          <button
+            onClick={() => navigate("/")}
+            style={{
+              marginTop: 24,
+              padding: "8px 20px",
+              fontSize: 13,
+              cursor: "pointer",
+              border: "1px solid #ccc",
+              borderRadius: 6,
+              background: "#fff",
+            }}
+          >
+            返回首页
+          </button>
         </div>
       </div>
     </div>

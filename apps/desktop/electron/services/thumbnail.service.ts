@@ -16,7 +16,7 @@ export async function generateThumbnail(imagePath: string, imageHash?: string): 
   const hash = imageHash ?? (await getFileHash(imagePath));
   const bucket = hash.slice(0, 2);
 
-  const cacheDir = join(app.getPath("userData"), "cache", "thumbnails", bucket);
+  const cacheDir = join(app.getPath("userData"), "thumbnails", bucket);
   if (!existsSync(cacheDir)) {
     mkdirSync(cacheDir, { recursive: true });
   }
@@ -31,11 +31,12 @@ export async function generateThumbnail(imagePath: string, imageHash?: string): 
   logger.debug(`Generating thumbnail for ${imagePath}`);
 
   const buffer = await sharp(imagePath)
-    .resize(256, 256, { fit: "inside", withoutEnlargement: true })
+    .resize(512, 512, { fit: "inside", withoutEnlargement: true })
     .jpeg({ quality: 80 })
     .toBuffer();
 
   await writeFile(thumbnailPath, buffer);
+  logger.info(`Thumbnail saved: ${thumbnailPath}`);
 
   return thumbnailPath;
 }

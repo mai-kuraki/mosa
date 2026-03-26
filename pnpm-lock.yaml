@@ -38,6 +38,9 @@ importers:
       chokidar:
         specifier: ^4.0.0
         version: 4.0.3
+      classnames:
+        specifier: ^2.5.1
+        version: 2.5.1
       electron-log:
         specifier: ^5.0.0
         version: 5.4.3
@@ -65,6 +68,9 @@ importers:
       react-router-dom:
         specifier: ^7.0.0
         version: 7.13.2(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      sharp:
+        specifier: ^0.33.5
+        version: 0.33.5
       zustand:
         specifier: ^5.0.0
         version: 5.0.12(@types/react@19.2.14)(react@19.2.4)
@@ -1589,6 +1595,9 @@ packages:
   ci-info@3.9.0:
     resolution: {integrity: sha512-NIxF55hv4nSqQswkAeiOi1r83xy8JldOFDTWiug55KBu9Jnblncd2U6ViHmYgHf01TPZS77NJBhBMKdWj9HQMQ==}
     engines: {node: '>=8'}
+
+  classnames@2.5.1:
+    resolution: {integrity: sha512-saHYOzhIQs6wy2sVxTM6bUDsQO4F50V9RQ22qBpEdCW+I+/Wmke2HOl6lS6dTpdxVhb88/I6+Hs+438c3lfUow==}
 
   clean-stack@2.2.0:
     resolution: {integrity: sha512-4diC9HaTE+KRAMWhDhrGOECgWZxoevMc5TlkObMqNSsVU62PYzXZ/SMTjzyGAFF1YusgxGcSWTEXBhp0CPwQ1A==}
@@ -4522,6 +4531,8 @@ snapshots:
   chromium-pickle-js@0.2.0: {}
 
   ci-info@3.9.0: {}
+
+  classnames@2.5.1: {}
 
   clean-stack@2.2.0: {}
 
