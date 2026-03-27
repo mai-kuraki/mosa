@@ -3,11 +3,12 @@ import { readdirSync, statSync, existsSync, mkdirSync, copyFileSync } from "node
 import { join, basename, extname } from "node:path";
 import { app, dialog } from "electron";
 import sharp from "sharp";
-import ExifReader from "exifreader";
+import { exiftool } from "exiftool-vendored";
 import { ok, err, type Result, getFileHash, isSupportedImageFormat } from "@mosa/shared-utils";
 import type { FolderInfo, CatalogImage } from "@mosa/ipc-bridge/src/contracts/catalog.contract";
 import { getDatabase } from "../../services/database.service";
 import { generateThumbnail } from "../../services/thumbnail.service";
+import { isRawFormat, decodeRawThumbnail } from "../../services/raw-decoder.service";
 import { createLogger } from "../../services/logger.service";
 import { getMainWindow } from "../../main";
 
@@ -24,17 +25,31 @@ function sendToRenderer(channel: string, data: unknown): void {
 
 async function readExif(filePath: string) {
   try {
-    const tags = await ExifReader.load(filePath, { expanded: true });
-    const exif = tags.exif ?? {};
+    const tags = await exiftool.read(filePath);
+
+    // Parse date — ExifDateTime has .toString(), or it may be a plain string
+    const dateRaw = tags.DateTimeOriginal ?? tags.CreateDate;
+    const dateTaken = dateRaw ? String(dateRaw) : undefined;
+
+    // Parse focal length from string like "50 mm" or "50.0 mm"
+    let focalLength: number | undefined;
+    if (tags.FocalLength) {
+      const match = String(tags.FocalLength).match(/[\d.]+/);
+      if (match) focalLength = parseFloat(match[0]);
+    }
+
     return {
-      dateTaken: exif.DateTime?.description ?? exif.DateTimeOriginal?.description ?? undefined,
-      cameraMake: exif.Make?.description ?? undefined,
-      cameraModel: exif.Model?.description ?? undefined,
-      lens: exif.LensModel?.description ?? undefined,
-      iso: exif.ISOSpeedRatings?.value ? Number(exif.ISOSpeedRatings.value) : undefined,
-      aperture: exif.FNumber?.value ? Number(exif.FNumber.value) : undefined,
-      shutterSpeed: exif.ExposureTime?.description ?? undefined,
-      focalLength: exif.FocalLength?.value ? Number(exif.FocalLength.value) : undefined,
+      dateTaken,
+      cameraMake: tags.Make ?? undefined,
+      cameraModel: tags.Model ?? undefined,
+      lens: tags.LensModel ?? tags.Lens ?? undefined,
+      iso: tags.ISO ?? undefined,
+      aperture: tags.FNumber ?? undefined,
+      shutterSpeed: tags.ExposureTime ?? undefined,
+      focalLength,
+      exposureCompensation: tags.ExposureCompensation ?? undefined,
+      exifWidth: tags.ImageWidth ?? undefined,
+      exifHeight: tags.ImageHeight ?? undefined,
     };
   } catch {
     logger.warn(`Failed to read EXIF for ${filePath}`);
@@ -59,21 +74,46 @@ async function processImage(
       return null;
     }
 
-    // Image dimensions via Sharp
-    const metadata = await sharp(filePath).metadata();
-    const width = metadata.width ?? 0;
-    const height = metadata.height ?? 0;
-    const format = metadata.format ?? extname(filePath).replace(".", "");
-
-    // EXIF
+    // EXIF (read first so we can fall back to EXIF dimensions)
     const exif = await readExif(filePath);
 
-    // Thumbnail
+    let width = 0;
+    let height = 0;
+    let format = extname(filePath).replace(".", "").toLowerCase();
     let thumbnailPath: string | null = null;
-    try {
-      thumbnailPath = await generateThumbnail(filePath, fileHash);
-    } catch (thumbErr) {
-      logger.error(`Thumbnail generation failed for ${filePath}: ${thumbErr}`);
+
+    if (isRawFormat(filePath)) {
+      // ── RAW path: use macOS sips (platform-native RAW decoder) ──
+      try {
+        const raw = await decodeRawThumbnail(filePath);
+        width = raw.width;
+        height = raw.height;
+        thumbnailPath = await generateThumbnail(raw.thumbnailBuffer, fileHash);
+        logger.info(`RAW decoded via sips: ${fileName} (${width}x${height})`);
+      } catch (rawErr) {
+        logger.warn(`sips RAW decode failed for ${fileName}: ${rawErr}`);
+        // Fall back to EXIF dimensions
+        width = exif.exifWidth ?? 0;
+        height = exif.exifHeight ?? 0;
+      }
+    } else {
+      // ── Standard image path: use Sharp ──
+      try {
+        const metadata = await sharp(filePath).metadata();
+        width = metadata.width ?? 0;
+        height = metadata.height ?? 0;
+        format = metadata.format ?? format;
+      } catch {
+        logger.debug(`Sharp cannot decode ${fileName}, using EXIF dimensions`);
+        width = exif.exifWidth ?? 0;
+        height = exif.exifHeight ?? 0;
+      }
+
+      try {
+        thumbnailPath = await generateThumbnail(filePath, fileHash);
+      } catch (thumbErr) {
+        logger.error(`Thumbnail generation failed for ${fileName}: ${thumbErr}`);
+      }
     }
 
     const id = randomUUID();
@@ -83,19 +123,20 @@ async function processImage(
       INSERT INTO images (
         id, file_path, file_hash, file_size, width, height, format,
         date_taken, camera_make, camera_model, lens, iso, aperture,
-        shutter_speed, focal_length, rating, thumbnail_path, folder_id,
+        shutter_speed, focal_length, exposure_compensation, rating, thumbnail_path, folder_id,
         created_at, updated_at
       ) VALUES (
         ?, ?, ?, ?, ?, ?, ?,
         ?, ?, ?, ?, ?, ?,
-        ?, ?, 0, ?, ?,
+        ?, ?, ?, 0, ?, ?,
         ?, ?
       )
     `).run(
       id, filePath, fileHash, stat.size, width, height, format,
       exif.dateTaken ?? null, exif.cameraMake ?? null, exif.cameraModel ?? null,
       exif.lens ?? null, exif.iso ?? null, exif.aperture ?? null,
-      exif.shutterSpeed ?? null, exif.focalLength ?? null, thumbnailPath, folderId,
+      exif.shutterSpeed ?? null, exif.focalLength ?? null, exif.exposureCompensation ?? null,
+      thumbnailPath, folderId,
       now, now,
     );
 
@@ -110,10 +151,12 @@ async function processImage(
       dateTaken: exif.dateTaken,
       cameraMake: exif.cameraMake,
       cameraModel: exif.cameraModel,
+      lens: exif.lens,
       iso: exif.iso,
       aperture: exif.aperture,
       shutterSpeed: exif.shutterSpeed,
       focalLength: exif.focalLength,
+      exposureCompensation: exif.exposureCompensation,
       rating: 0,
       thumbnailPath,
       folderId,
@@ -176,6 +219,13 @@ export async function handleCatalogImportFolder(data?: {
       })
       .map((name) => join(folderPath!, name));
 
+    // Send initial progress immediately so UI shows progress bar without delay
+    sendToRenderer("catalog:import-progress", {
+      folderPath,
+      processed: 0,
+      total: imageFiles.length,
+    });
+
     let importedCount = 0;
     for (let i = 0; i < imageFiles.length; i++) {
       const result = await processImage(imageFiles[i], folderId);
@@ -221,7 +271,10 @@ export async function handleCatalogImportFiles(data?: {
 
     if (!filePaths || filePaths.length === 0) {
       const win = getMainWindow();
-      const exts = ["jpg", "jpeg", "png", "tiff", "tif", "webp", "avif", "heic", "heif"];
+      const exts = [
+        "jpg", "jpeg", "png", "tiff", "tif", "webp", "avif", "heic", "heif",
+        "dng", "cr2", "cr3", "nef", "arw", "orf", "rw2", "pef", "raf", "raw",
+      ];
       const result = await dialog.showOpenDialog(win!, {
         properties: ["openFile", "multiSelections"],
         title: "选择图片",
@@ -254,6 +307,13 @@ export async function handleCatalogImportFiles(data?: {
         folderId, workspaceDir, `导入 ${dateStr}`, now,
       );
     }
+
+    // Send initial progress immediately so UI shows progress bar without delay
+    sendToRenderer("catalog:import-progress", {
+      folderPath: workspaceDir,
+      processed: 0,
+      total: filePaths.length,
+    });
 
     let importedCount = 0;
     for (let i = 0; i < filePaths.length; i++) {
@@ -343,10 +403,12 @@ export async function handleCatalogGetImages(data: {
       date_taken: string | null;
       camera_make: string | null;
       camera_model: string | null;
+      lens: string | null;
       iso: number | null;
       aperture: number | null;
       shutter_speed: string | null;
       focal_length: number | null;
+      exposure_compensation: number | null;
       rating: number;
       thumbnail_path: string | null;
       folder_id: string | null;
@@ -364,10 +426,12 @@ export async function handleCatalogGetImages(data: {
       dateTaken: row.date_taken ?? undefined,
       cameraMake: row.camera_make ?? undefined,
       cameraModel: row.camera_model ?? undefined,
+      lens: row.lens ?? undefined,
       iso: row.iso ?? undefined,
       aperture: row.aperture ?? undefined,
       shutterSpeed: row.shutter_speed ?? undefined,
       focalLength: row.focal_length ?? undefined,
+      exposureCompensation: row.exposure_compensation ?? undefined,
       rating: row.rating,
       thumbnailPath: row.thumbnail_path ?? undefined,
       folderId: row.folder_id ?? undefined,
@@ -377,7 +441,14 @@ export async function handleCatalogGetImages(data: {
     // Regenerate missing thumbnails in the background
     for (const row of rows) {
       if (!row.thumbnail_path || !existsSync(row.thumbnail_path)) {
-        generateThumbnail(row.file_path, row.file_hash)
+        const regenThumbnail = async () => {
+          if (isRawFormat(row.file_path)) {
+            const raw = await decodeRawThumbnail(row.file_path);
+            return generateThumbnail(raw.thumbnailBuffer, row.file_hash);
+          }
+          return generateThumbnail(row.file_path, row.file_hash);
+        };
+        regenThumbnail()
           .then((newPath) => {
             db.prepare("UPDATE images SET thumbnail_path = ? WHERE id = ?").run(newPath, row.id);
           })

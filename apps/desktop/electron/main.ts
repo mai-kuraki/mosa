@@ -1,6 +1,7 @@
 import { app, BrowserWindow, protocol, shell } from "electron";
 import { join } from "path";
 import { readFile } from "fs/promises";
+import { exiftool } from "exiftool-vendored";
 import { createLogger } from "./services/logger.service";
 
 const logger = createLogger("main");
@@ -86,6 +87,9 @@ app.whenReady().then(async () => {
 
   createWindow();
 
+  // Warm up exiftool in the background (spawns Perl process ahead of first use)
+  exiftool.version().then((v) => logger.info(`ExifTool ${v} ready`)).catch(() => {});
+
   app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) {
       createWindow();
@@ -97,4 +101,8 @@ app.on("window-all-closed", () => {
   if (process.platform !== "darwin") {
     app.quit();
   }
+});
+
+app.on("will-quit", () => {
+  exiftool.end();
 });

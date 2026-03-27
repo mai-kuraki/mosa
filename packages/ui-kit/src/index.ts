@@ -6,6 +6,9 @@ export { default as Slider } from "./components/Slider";
 export { default as ProgressBar } from "./components/ProgressBar";
 export { Tabs } from "./components/Tabs";
 export { ToggleGroup } from "./components/ToggleGroup";
+export { Tooltip } from "./components/Tooltip";
+export { Masonry, MasonryItem } from "./components/Masonry";
+export type { MasonryProps, MasonryItemProps } from "./components/Masonry";
 export {
   DropdownMenu,
   DropdownMenuTrigger,

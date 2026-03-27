@@ -23,6 +23,8 @@ export interface CatalogImage {
   aperture?: number;
   shutterSpeed?: string;
   focalLength?: number;
+  lens?: string;
+  exposureCompensation?: number;
   rating: number;
   thumbnailPath?: string;
   folderId?: string;

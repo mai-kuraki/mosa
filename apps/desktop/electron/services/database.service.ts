@@ -104,6 +104,10 @@ function runMigrations(): void {
     CREATE INDEX IF NOT EXISTS idx_edit_history_image_seq ON edit_history(image_id, sequence);
   `);
 
+  // Incremental migrations (idempotent)
+  try { db.exec("ALTER TABLE images ADD COLUMN exposure_compensation REAL"); }
+  catch { /* column already exists */ }
+
   logger.info("Database migrations complete.");
 }
 

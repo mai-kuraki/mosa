@@ -8,6 +8,20 @@ export const SUPPORTED_FORMATS = new Set([
   "avif",
   "heic",
   "heif",
+  // RAW formats
+  "dng",
+  "cr2",
+  "cr3",
+  "nef",
+  "nrw",
+  "arw",
+  "srf",
+  "sr2",
+  "orf",
+  "rw2",
+  "pef",
+  "raf",
+  "raw",
 ] as const);
 
 export type SupportedFormat = typeof SUPPORTED_FORMATS extends Set<infer T> ? T : never;

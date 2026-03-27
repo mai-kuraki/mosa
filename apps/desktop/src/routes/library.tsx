@@ -1,6 +1,6 @@
 import React, { useEffect, useCallback, useState } from "react";
-import { FolderPlus, ImagePlus, Images, Trash2, Folder, LayoutGrid, List } from "lucide-react";
-import { Button, Tabs, ToggleGroup } from "@mosa/ui-kit";
+import { FolderPlus, ImagePlus, Images, Trash2, Folder, LayoutGrid, List, Plus, Pencil } from "lucide-react";
+import { Button, Tabs, ToggleGroup, Tooltip, Masonry, MasonryItem } from "@mosa/ui-kit";
 import { IPC_CHANNELS } from "@mosa/ipc-bridge";
 import type { FolderInfo, CatalogImage } from "@mosa/ipc-bridge/src/contracts/catalog.contract";
 import TextType from "../components/reactbits/TextType";
@@ -28,7 +28,10 @@ function formatFileSize(bytes: number): string {
 function formatExifSummary(image: CatalogImage): string {
   const parts: string[] = [];
   if (image.cameraMake || image.cameraModel) {
-    parts.push([image.cameraMake, image.cameraModel].filter(Boolean).join(" "));
+    parts.push(getDeviceName(image.cameraMake, image.cameraModel));
+  }
+  if (image.lens) {
+    parts.push(image.lens);
   }
   if (image.width && image.height) {
     parts.push(`${image.width}x${image.height}`);
@@ -39,10 +42,38 @@ function formatExifSummary(image: CatalogImage): string {
 function formatExifParams(image: CatalogImage): string {
   const parts: string[] = [];
   if (image.iso) parts.push(`ISO ${image.iso}`);
-  if (image.aperture) parts.push(`f/${image.aperture}`);
-  if (image.shutterSpeed) parts.push(`${image.shutterSpeed}s`);
   if (image.focalLength) parts.push(`${image.focalLength}mm`);
+  if (image.exposureCompensation !== undefined && image.exposureCompensation !== null) {
+    parts.push(formatExposureComp(image.exposureCompensation));
+  }
+  if (image.aperture) parts.push(`F${image.aperture}`);
+  if (image.shutterSpeed) parts.push(`${image.shutterSpeed}s`);
   return parts.join("  ·  ");
+}
+
+function getDeviceName(make?: string, model?: string): string {
+  if (!make && !model) return "";
+  if (!model) return make!;
+  if (!make) return model;
+  // Avoid duplication like "Canon Canon EOS R5"
+  if (model.toLowerCase().startsWith(make.toLowerCase())) return model;
+  return `${make} ${model}`;
+}
+
+function formatMegapixels(w: number, h: number): string {
+  if (!w || !h) return "";
+  const mp = (w * h) / 1_000_000;
+  return mp >= 10 ? `${Math.round(mp)}MP` : `${mp.toFixed(1)}MP`;
+}
+
+function formatExposureComp(ev?: number): string {
+  if (ev === undefined || ev === null) return "";
+  if (ev === 0) return "0EV";
+  return ev > 0 ? `+${ev}EV` : `${ev}EV`;
+}
+
+function PipeSep() {
+  return <span className={styles.cardSep}>|</span>;
 }
 
 type ViewMode = "grid" | "list";
@@ -53,6 +84,7 @@ const LibraryPage: React.FC = () => {
   
   const [selectedFolderId, setSelectedFolderId] = useState("all");
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
+  const [fabOpen, setFabOpen] = useState(false);
 
   // Filtered images by selected folder
   const filteredImages = selectedFolderId === "all"
@@ -198,17 +230,6 @@ const LibraryPage: React.FC = () => {
       <div className={styles.page}>
         {/* Left sidebar — folder list */}
         <div className={styles.sidebar}>
-          <div className={styles.sidebarHeader}>
-            <Button variant="primary" size="md" className={styles.sidebarBtn} onClick={handleImportFiles} disabled={isImporting} title="导入图片">
-              <ImagePlus size={14} />
-              导入图片&nbsp;&nbsp;&nbsp;
-            </Button>
-            <Button variant="secondary" size="md" className={styles.sidebarBtn} onClick={handleImportFolder} disabled={isImporting} title="添加文件夹">
-              <FolderPlus size={14} />
-              添加文件夹
-            </Button>
-          </div>
-
           <Tabs.List className={styles.folderList}>
             <Tabs.Trigger value="all" className={styles.folderItem}>
               <Images size={14} />
@@ -246,10 +267,10 @@ const LibraryPage: React.FC = () => {
               className={styles.viewToggle}
             >
               <ToggleGroup.Item value="grid" className={styles.viewToggleBtn} title="网格视图">
-                <LayoutGrid size={18} />
+                <LayoutGrid size={16} />
               </ToggleGroup.Item>
               <ToggleGroup.Item value="list" className={styles.viewToggleBtn} title="列表视图">
-                <List size={18} />
+                <List size={16} />
               </ToggleGroup.Item>
             </ToggleGroup.Root>
           </div>
@@ -272,47 +293,94 @@ const LibraryPage: React.FC = () => {
               </div>
             </div>
           ) : viewMode === "grid" ? (
-          /* ── Grid view ── */
+          /* ── Masonry view ── */
           <div className={styles.gridContainer}>
-            <div className={styles.grid}>
+            <Masonry columnWidth={220} gap={12}>
               {filteredImages.map((image) => (
-                <div key={image.id} className={styles.card}>
-                  <img
-                    className={styles.cardImage}
-                    src={image.thumbnailPath ? `mosa://thumbnail${image.thumbnailPath}` : undefined}
-                    alt={image.fileName}
-                    loading="lazy"
-                  />
-                  <div className={styles.cardOverlay}>
-                    <span className={styles.cardName}>{image.fileName}</span>
+                <MasonryItem key={image.id}>
+                  <div className={styles.card}>
+                    <div className={styles.cardImageWrap}>
+                      <img
+                        className={styles.cardImage}
+                        src={image.thumbnailPath ? `mosa://thumbnail${image.thumbnailPath}` : undefined}
+                        alt={image.fileName}
+                        loading="lazy"
+                      />
+                    </div>
+                    <div className={styles.cardBody}>
+                      {/* Row 1: Device + badges */}
+                      {(getDeviceName(image.cameraMake, image.cameraModel) || true) && (
+                        <div className={styles.cardDeviceRow}>
+                          <span className={styles.cardDeviceName}>
+                            {getDeviceName(image.cameraMake, image.cameraModel) || image.fileName}
+                          </span>
+                          <div className={styles.cardBadges}>
+                            <span className={styles.cardTag}>{getFileExtension(image.fileName)}</span>
+                            {isRawFormat(image.fileName) && <span className={styles.rawBadge}>RAW</span>}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Row 2: Lens info */}
+                      {(image.lens || image.focalLength) ? (
+                        <div className={styles.cardLensRow}>
+                          {image.lens ?? `${image.focalLength}mm`}
+                        </div>
+                      ) : null}
+
+                      {/* Row 3: File metadata */}
+                      <div className={styles.cardMetaRow}>
+                        {image.fileSize ? formatFileSize(image.fileSize) : null}
+                        {image.width && image.height ? <><PipeSep />{image.width}x{image.height}</> : null}
+                        {image.width && image.height ? <><PipeSep />{formatMegapixels(image.width, image.height)}</> : null}
+                      </div>
+
+                      {/* Row 4: Shooting params */}
+                      {(image.iso || image.focalLength || image.exposureCompensation !== undefined || image.aperture || image.shutterSpeed) && (
+                        <div className={styles.cardMetaRow}>
+                          {[
+                            image.iso ? `ISO ${image.iso}` : null,
+                            image.focalLength ? `${image.focalLength}mm` : null,
+                            formatExposureComp(image.exposureCompensation) || null,
+                            image.aperture ? `F${image.aperture}` : null,
+                            image.shutterSpeed ? `${image.shutterSpeed}s` : null,
+                          ].filter(Boolean).map((part, i, arr) => (
+                            <React.Fragment key={i}>
+                              {part}{i < arr.length - 1 && <PipeSep />}
+                            </React.Fragment>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* Action buttons */}
+                      <div className={styles.cardActions}>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          iconOnly
+                          className={styles.cardDeleteBtn}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteImage(image.id);
+                          }}
+                          title="删除"
+                        >
+                          <Trash2 size={14} />
+                        </Button>
+                      </div>
+                    </div>
                   </div>
-                  <Button
-                    variant="danger"
-                    size="sm"
-                    iconOnly
-                    className={styles.deleteBtn}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDeleteImage(image.id);
-                    }}
-                    title="删除"
-                  >
-                    <Trash2 size={14} />
-                  </Button>
-                </div>
+                </MasonryItem>
               ))}
-            </div>
+            </Masonry>
           </div>
         ) : (
           /* ── List view ── */
           <div className={styles.listContainer}>
             <div className={styles.listHeader}>
-              <span className={styles.listHeaderThumb}>预览</span>
-              <span className={styles.listHeaderName}>文件名</span>
-              <span className={styles.listHeaderInfo}>相机 / 尺寸</span>
+              <span className={styles.listHeaderThumb}>图片信息</span>
               <span className={styles.listHeaderParams}>拍摄参数</span>
               <span className={styles.listHeaderMeta}>格式</span>
-              <span className={styles.listHeaderActions}>操作</span>
             </div>
             {filteredImages.map((image) => {
               const ext = getFileExtension(image.fileName);
@@ -327,16 +395,13 @@ const LibraryPage: React.FC = () => {
                     />
                   </div>
                   <div className={styles.listName}>
-                    <span className={styles.listFileName}>{image.fileName}</span>
+                    <span className={styles.listFileName}>
+                      {getDeviceName(image.cameraMake, image.cameraModel) || image.fileName}
+                    </span>
+                    {image.width && image.height && (
+                      <span className={styles.listFileSize}>{image.width}x{image.height}</span>
+                    )}
                     <span className={styles.listFileSize}>{formatFileSize(image.fileSize)}</span>
-                  </div>
-                  <div className={styles.listInfo}>{formatExifSummary(image)}</div>
-                  <div className={styles.listParams}>{formatExifParams(image)}</div>
-                  <div className={styles.listMeta}>
-                    <span className={styles.listExt}>{ext}</span>
-                    {raw && <span className={styles.rawBadge}>RAW</span>}
-                  </div>
-                  <div className={styles.listActions}>
                     <Button
                       variant="danger"
                       size="sm"
@@ -348,12 +413,54 @@ const LibraryPage: React.FC = () => {
                       <Trash2 size={14} />
                     </Button>
                   </div>
+                  <div className={styles.listParams}>{formatExifParams(image)}</div>
+                  <div className={styles.listMeta}>
+                    <span className={styles.listExt}>{ext}</span>
+                    {raw && <span className={styles.rawBadge}>RAW</span>}
+                  </div>
                 </div>
               );
             })}
           </div>
         )}
       </div>
+
+        {/* Floating action buttons */}
+        <Tooltip.Provider delayDuration={200}>
+          <div
+            className={`${styles.fab} ${fabOpen ? styles.fabOpen : ""}`}
+            onMouseEnter={() => setFabOpen(true)}
+            onMouseLeave={() => setFabOpen(false)}
+          >
+            <Tooltip.Root>
+              <Tooltip.Trigger asChild>
+                <button
+                  className={styles.fabItem}
+                  onClick={handleImportFiles}
+                  disabled={isImporting}
+                >
+                  <ImagePlus size={18} />
+                </button>
+              </Tooltip.Trigger>
+              <Tooltip.Content side="left">导入图片</Tooltip.Content>
+            </Tooltip.Root>
+            <Tooltip.Root>
+              <Tooltip.Trigger asChild>
+                <button
+                  className={styles.fabItem}
+                  onClick={handleImportFolder}
+                  disabled={isImporting}
+                >
+                  <FolderPlus size={18} />
+                </button>
+              </Tooltip.Trigger>
+              <Tooltip.Content side="left">添加文件夹</Tooltip.Content>
+            </Tooltip.Root>
+            <button className={styles.fabTrigger}>
+              <Plus size={22} />
+            </button>
+          </div>
+        </Tooltip.Provider>
     </div>
     </Tabs.Root>
   );

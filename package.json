@@ -22,7 +22,7 @@
       "electron",
       "esbuild",
       "sharp",
-      "exifreader"
+      "lightdrift-libraw"
     ]
   },
   "devDependencies": {

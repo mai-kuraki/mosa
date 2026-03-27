@@ -30,7 +30,7 @@ export async function handleImageGetMetadata(data: {
 }): Promise<Result<ImageMetadata, string>> {
   try {
     logger.info(`Reading metadata for ${data.imagePath}`);
-    // TODO: Implement with ExifReader
+    // TODO: Implement with exiftool-vendored
     return ok({
       width: 0,
       height: 0,

@@ -9,11 +9,12 @@ import { createLogger } from "./logger.service";
 const logger = createLogger("thumbnail");
 
 /**
- * Generate a 256px thumbnail for an image and save to cache directory.
+ * Generate a 512px thumbnail for an image and save to cache directory.
+ * Accepts a file path or a Buffer (e.g. embedded EXIF preview from RAW files).
  * Returns the path to the generated thumbnail.
  */
-export async function generateThumbnail(imagePath: string, imageHash?: string): Promise<string> {
-  const hash = imageHash ?? (await getFileHash(imagePath));
+export async function generateThumbnail(input: string | Buffer, imageHash?: string): Promise<string> {
+  const hash = imageHash ?? (typeof input === "string" ? await getFileHash(input) : "buf-" + Date.now());
   const bucket = hash.slice(0, 2);
 
   const cacheDir = join(app.getPath("userData"), "thumbnails", bucket);
@@ -28,9 +29,10 @@ export async function generateThumbnail(imagePath: string, imageHash?: string): 
     return thumbnailPath;
   }
 
-  logger.debug(`Generating thumbnail for ${imagePath}`);
+  logger.debug(`Generating thumbnail for ${typeof input === "string" ? input : "buffer"}`);
 
-  const buffer = await sharp(imagePath)
+  const buffer = await sharp(input)
+    .rotate() // auto-rotate based on EXIF orientation
     .resize(512, 512, { fit: "inside", withoutEnlargement: true })
     .jpeg({ quality: 80 })
     .toBuffer();
