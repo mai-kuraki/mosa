@@ -1,11 +1,9 @@
 import React, { useEffect, useCallback, useState } from "react";
 import { FolderPlus, ImagePlus, Images, Trash2, Folder, LayoutGrid, List } from "lucide-react";
-import * as Tabs from "@radix-ui/react-tabs";
-import * as ToggleGroup from "@radix-ui/react-toggle-group";
+import { Button, Tabs, ToggleGroup } from "@mosa/ui-kit";
 import { IPC_CHANNELS } from "@mosa/ipc-bridge";
 import type { FolderInfo, CatalogImage } from "@mosa/ipc-bridge/src/contracts/catalog.contract";
 import TextType from "../components/reactbits/TextType";
-import classnames from "classnames";
 import { useCatalogStore } from "../stores/catalog.store";
 import { ipc } from "../lib/ipc-client";
 import styles from "./library.module.less";
@@ -167,14 +165,14 @@ const LibraryPage: React.FC = () => {
               />
             </div>
             <div className={styles.emptyActions}>
-              <button className={classnames(styles.emptyBtn, styles.emptyBtnPrimary)} onClick={handleImportFiles} disabled={isImporting}>
+              <Button variant="primary" size="lg" className={styles.emptyBtn} onClick={handleImportFiles} disabled={isImporting}>
                 <ImagePlus size={16} />
                 导入图片
-              </button>
-              <button className={styles.emptyBtn} onClick={handleImportFolder} disabled={isImporting}>
+              </Button>
+              <Button variant="secondary" size="lg" className={styles.emptyBtn} onClick={handleImportFolder} disabled={isImporting}>
                 <FolderPlus size={16} />
                 添加文件夹
-              </button>
+              </Button>
             </div>
             {isImporting && importProgress && (
               <div className={styles.emptyProgress}>
@@ -201,14 +199,14 @@ const LibraryPage: React.FC = () => {
         {/* Left sidebar — folder list */}
         <div className={styles.sidebar}>
           <div className={styles.sidebarHeader}>
-            <button className={classnames(styles.sidebarBtn, styles.sidebarBtnPrimary)} onClick={handleImportFiles} disabled={isImporting} title="导入图片">
+            <Button variant="primary" size="md" className={styles.sidebarBtn} onClick={handleImportFiles} disabled={isImporting} title="导入图片">
               <ImagePlus size={14} />
               导入图片&nbsp;&nbsp;&nbsp;
-            </button>
-            <button className={styles.sidebarBtn} onClick={handleImportFolder} disabled={isImporting} title="添加文件夹">
+            </Button>
+            <Button variant="secondary" size="md" className={styles.sidebarBtn} onClick={handleImportFolder} disabled={isImporting} title="添加文件夹">
               <FolderPlus size={14} />
               添加文件夹
-            </button>
+            </Button>
           </div>
 
           <Tabs.List className={styles.folderList}>
@@ -288,7 +286,10 @@ const LibraryPage: React.FC = () => {
                   <div className={styles.cardOverlay}>
                     <span className={styles.cardName}>{image.fileName}</span>
                   </div>
-                  <button
+                  <Button
+                    variant="danger"
+                    size="sm"
+                    iconOnly
                     className={styles.deleteBtn}
                     onClick={(e) => {
                       e.stopPropagation();
@@ -297,7 +298,7 @@ const LibraryPage: React.FC = () => {
                     title="删除"
                   >
                     <Trash2 size={14} />
-                  </button>
+                  </Button>
                 </div>
               ))}
             </div>
@@ -336,13 +337,16 @@ const LibraryPage: React.FC = () => {
                     {raw && <span className={styles.rawBadge}>RAW</span>}
                   </div>
                   <div className={styles.listActions}>
-                    <button
+                    <Button
+                      variant="danger"
+                      size="sm"
+                      iconOnly
                       className={styles.listDeleteBtn}
                       onClick={() => handleDeleteImage(image.id)}
                       title="删除"
                     >
                       <Trash2 size={14} />
-                    </button>
+                    </Button>
                   </div>
                 </div>
               );

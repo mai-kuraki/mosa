@@ -164,6 +164,9 @@ importers:
       '@mosa/shared-utils':
         specifier: workspace:*
         version: link:../shared-utils
+      classnames:
+        specifier: ^2.5.1
+        version: 2.5.1
     devDependencies:
       '@types/node':
         specifier: ^22.0.0

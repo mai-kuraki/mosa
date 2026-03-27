@@ -1,40 +1,35 @@
-import React from "react";
+import React, { forwardRef } from "react";
+import classnames from "classnames";
+import styles from "./Button.module.less";
 
-interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: "primary" | "secondary" | "ghost";
+export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  variant?: "primary" | "secondary" | "ghost" | "danger";
   size?: "sm" | "md" | "lg";
+  iconOnly?: boolean;
 }
 
-const Button: React.FC<ButtonProps> = ({
-  variant = "primary",
-  size = "md",
-  className = "",
-  children,
-  ...props
-}) => {
-  const baseClasses =
-    "inline-flex items-center justify-center font-medium transition-colors rounded focus:outline-none focus:ring-2 focus:ring-accent-primary/50";
+const Button = forwardRef<HTMLButtonElement, ButtonProps>(
+  ({ variant = "secondary", size = "md", iconOnly = false, className, disabled, children, ...rest }, ref) => {
+    return (
+      <button
+        ref={ref}
+        className={classnames(
+          styles.button,
+          styles[variant],
+          styles[size],
+          iconOnly && styles.iconOnly,
+          disabled && styles.disabled,
+          className,
+        )}
+        disabled={disabled}
+        {...rest}
+      >
+        {children}
+      </button>
+    );
+  },
+);
 
-  const variantClasses = {
-    primary: "bg-accent-primary text-white hover:bg-accent-hover active:bg-accent-active",
-    secondary: "bg-bg-elevated text-fg-primary border border-border-default hover:bg-bg-tertiary",
-    ghost: "text-fg-secondary hover:text-fg-primary hover:bg-bg-tertiary",
-  };
-
-  const sizeClasses = {
-    sm: "px-2 py-1 text-xs",
-    md: "px-4 py-2 text-sm",
-    lg: "px-6 py-3 text-md",
-  };
-
-  return (
-    <button
-      className={`${baseClasses} ${variantClasses[variant]} ${sizeClasses[size]} ${className}`}
-      {...props}
-    >
-      {children}
-    </button>
-  );
-};
+Button.displayName = "Button";
 
 export default Button;

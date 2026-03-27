@@ -1,0 +1,89 @@
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-family: var(--font-base);
+  font-weight: 500;
+  transition: all 0.2s;
+  white-space: nowrap;
+  user-select: none;
+  line-height: 1;
+}
+
+/* ── Variants ── */
+
+.primary {
+  background-color: var(--fg-primary);
+  color: var(--fg-inverse);
+  &:hover {
+    background-color: var(--fg-primary);
+  }
+}
+
+.secondary {
+  background-color: var(--bg-secondary);
+  color: var(--fg-secondary);
+  &:hover {
+    background-color: var(--bg-tertiary);
+    color: var(--fg-primary);
+  }
+}
+
+.ghost {
+  background: transparent;
+  color: var(--fg-secondary);
+  &:hover {
+    background-color: var(--bg-secondary);
+    color: var(--fg-primary);
+  }
+}
+
+.danger {
+  background: transparent;
+  color: var(--fg-muted);
+  &:hover {
+    color: var(--danger-primary);
+    background-color: var(--bg-tertiary);
+  }
+}
+
+/* ── Sizes ── */
+
+.sm {
+  height: 28px;
+  padding: 0 8px;
+  font-size: 12px;
+}
+
+.md {
+  height: 36px;
+  padding: 0 16px;
+  font-size: 13px;
+}
+
+.lg {
+  height: 48px;
+  padding: 0 24px;
+  font-size: 14px;
+}
+
+/* ── Icon only ── */
+
+.iconOnly {
+  padding: 0;
+  &.sm { width: 28px; }
+  &.md { width: 36px; }
+  &.lg { width: 48px; }
+}
+
+/* ── Disabled ── */
+
+.disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}

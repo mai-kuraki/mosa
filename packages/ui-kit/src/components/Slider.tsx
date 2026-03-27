@@ -1,4 +1,6 @@
 import React from "react";
+import classnames from "classnames";
+import styles from "./Slider.module.less";
 
 interface SliderProps {
   value: number;
@@ -17,14 +19,14 @@ const Slider: React.FC<SliderProps> = ({
   step = 1,
   label,
   onChange,
-  className = "",
+  className,
 }) => {
   return (
-    <div className={`flex flex-col gap-1 ${className}`}>
+    <div className={classnames(styles.container, className)}>
       {label && (
-        <div className="flex justify-between text-xs text-fg-secondary">
+        <div className={styles.labelRow}>
           <span>{label}</span>
-          <span className="font-mono">{value}</span>
+          <span className={styles.value}>{value}</span>
         </div>
       )}
       <input
@@ -34,7 +36,7 @@ const Slider: React.FC<SliderProps> = ({
         step={step}
         value={value}
         onChange={(e) => onChange(Number(e.target.value))}
-        className="w-full h-1 rounded-full appearance-none cursor-pointer bg-bg-tertiary accent-accent-primary"
+        className={styles.input}
       />
     </div>
   );

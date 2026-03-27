@@ -1,0 +1,40 @@
+.root {
+  display: flex;
+  flex-direction: row;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+}
+
+.trigger {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 6px;
+  background: none;
+  color: var(--fg-secondary);
+  font-size: 13px;
+  font-family: var(--font-base);
+  cursor: pointer;
+  text-align: left;
+  transition: background-color 0.15s, color 0.15s;
+
+  &:hover {
+    color: var(--fg-primary);
+  }
+
+  &[data-state="active"] {
+    background-color: var(--bg-secondary);
+    color: var(--fg-primary);
+    font-weight: 500;
+  }
+}
+
+.content {
+  flex: 1;
+  outline: none;
+}

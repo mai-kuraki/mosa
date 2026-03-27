@@ -1,4 +1,6 @@
 import React from "react";
+import classnames from "classnames";
+import styles from "./ProgressBar.module.less";
 
 interface ProgressBarProps {
   value: number;
@@ -7,22 +9,19 @@ interface ProgressBarProps {
   className?: string;
 }
 
-const ProgressBar: React.FC<ProgressBarProps> = ({ value, max = 100, label, className = "" }) => {
+const ProgressBar: React.FC<ProgressBarProps> = ({ value, max = 100, label, className }) => {
   const percent = Math.round((value / max) * 100);
 
   return (
-    <div className={`flex flex-col gap-1 ${className}`}>
+    <div className={classnames(styles.container, className)}>
       {label && (
-        <div className="flex justify-between text-xs text-fg-secondary">
+        <div className={styles.labelRow}>
           <span>{label}</span>
-          <span className="font-mono">{percent}%</span>
+          <span className={styles.value}>{percent}%</span>
         </div>
       )}
-      <div className="w-full h-1.5 rounded-full bg-bg-tertiary overflow-hidden">
-        <div
-          className="h-full rounded-full bg-accent-primary transition-all duration-300"
-          style={{ width: `${percent}%` }}
-        />
+      <div className={styles.track}>
+        <div className={styles.bar} style={{ width: `${percent}%` }} />
       </div>
     </div>
   );

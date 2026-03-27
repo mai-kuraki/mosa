@@ -1,5 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import { Button } from "@mosa/ui-kit";
 import styles from "./settings.module.less";
 
 const SettingsPage: React.FC = () => {
@@ -36,20 +37,9 @@ const SettingsPage: React.FC = () => {
           </section>
 
           {/* TODO: 临时调试按钮，后续移除 */}
-          <button
-            onClick={() => navigate("/")}
-            style={{
-              marginTop: 24,
-              padding: "8px 20px",
-              fontSize: 13,
-              cursor: "pointer",
-              border: "1px solid #ccc",
-              borderRadius: 6,
-              background: "#fff",
-            }}
-          >
+          <Button variant="secondary" size="md" style={{ marginTop: 24 }} onClick={() => navigate("/")}>
             返回首页
-          </button>
+          </Button>
         </div>
       </div>
     </div>

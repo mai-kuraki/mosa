@@ -3,11 +3,12 @@ import { useNavigate } from "react-router-dom";
 import { Images, Sparkles, Settings, ArrowRight, Menu } from "lucide-react";
 import TextType from "../reactbits/TextType";
 import {
+  Button,
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
-} from "../ui/DropdownMenu";
+} from "@mosa/ui-kit";
 import styles from "./ActionPanel.module.less";
 
 const ActionPanel: React.FC = () => {
@@ -52,10 +53,10 @@ const ActionPanel: React.FC = () => {
         <div style={{ flex: 1 }} />
         {/* Actions */}
         <div className={styles.actions}>
-          <button className={styles.btnPrimary} onClick={handleImport}>
+          <Button variant="primary" size="lg" className={styles.btnPrimary} onClick={handleImport}>
             开始重构影调
             <ArrowRight size={20} style={{ marginLeft: 10 }} />
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -63,9 +64,9 @@ const ActionPanel: React.FC = () => {
       <div className={styles.menuAnchor}>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button className={styles.menuTrigger} aria-label="菜单">
+            <Button variant="ghost" size="md" iconOnly className={styles.menuTrigger} aria-label="菜单">
               <Menu size={20} />
-            </button>
+            </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent side="top" align="start" sideOffset={10}>
             <DropdownMenuItem onSelect={() => navigate("/library")}>
