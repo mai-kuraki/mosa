@@ -1,6 +1,6 @@
 import React, { useEffect, useCallback, useState } from "react";
 import { FolderPlus, ImagePlus, Images, Trash2, Folder, LayoutGrid, List, Plus, Pencil } from "lucide-react";
-import { Button, Tabs, ToggleGroup, Tooltip, Masonry, MasonryItem } from "@mosa/ui-kit";
+import { Button, Tabs, ToggleGroup, Tooltip, Masonry, MasonryItem, ContextMenu, ContextMenuTrigger, ContextMenuContent, ContextMenuItem, ContextMenuSeparator, toast } from "@mosa/ui-kit";
 import { IPC_CHANNELS } from "@mosa/ipc-bridge";
 import type { FolderInfo, CatalogImage } from "@mosa/ipc-bridge/src/contracts/catalog.contract";
 import TextType from "../components/reactbits/TextType";
@@ -131,8 +131,18 @@ const LibraryPage: React.FC = () => {
     setImporting(true);
     setImportProgress(null);
     try {
-      await ipc.invoke(IPC_CHANNELS.CATALOG_IMPORT_FOLDER);
+      const res = await ipc.invoke<{ ok: boolean; data?: { importedCount: number; skippedCount: number; totalScanned: number } }>(IPC_CHANNELS.CATALOG_IMPORT_FOLDER);
       await loadData();
+      if (res?.ok && res.data) {
+        const { importedCount, skippedCount, totalScanned } = res.data;
+        if (importedCount === 0 && totalScanned > 0) {
+          toast.info("所有图片已在图库中");
+        } else if (importedCount > 0 && skippedCount > 0) {
+          toast.success(`导入 ${importedCount} 张，跳过 ${skippedCount} 张重复`);
+        } else if (importedCount > 0) {
+          toast.success(`成功导入 ${importedCount} 张图片`);
+        }
+      }
     } finally {
       setImporting(false);
       setImportProgress(null);
@@ -143,8 +153,18 @@ const LibraryPage: React.FC = () => {
     setImporting(true);
     setImportProgress(null);
     try {
-      await ipc.invoke(IPC_CHANNELS.CATALOG_IMPORT_FILES);
+      const res = await ipc.invoke<{ ok: boolean; data?: { importedCount: number; skippedCount: number; totalScanned: number } }>(IPC_CHANNELS.CATALOG_IMPORT_FILES);
       await loadData();
+      if (res?.ok && res.data) {
+        const { importedCount, skippedCount, totalScanned } = res.data;
+        if (importedCount === 0 && totalScanned > 0) {
+          toast.info("所有图片已在图库中");
+        } else if (importedCount > 0 && skippedCount > 0) {
+          toast.success(`导入 ${importedCount} 张，跳过 ${skippedCount} 张重复`);
+        } else if (importedCount > 0) {
+          toast.success(`成功导入 ${importedCount} 张图片`);
+        }
+      }
     } finally {
       setImporting(false);
       setImportProgress(null);
@@ -162,6 +182,42 @@ const LibraryPage: React.FC = () => {
     },
     [loadData],
   );
+
+  const handleClearFolder = useCallback(async (folderId: string) => {
+    const label = folderId === "all" ? "清空图库" : "清空文件夹";
+    if (!window.confirm(`确定要${label}吗？此操作不可撤销。`)) return;
+    try {
+      await ipc.invoke(IPC_CHANNELS.CATALOG_CLEAR_FOLDER, { folderId });
+      await loadData();
+      toast.success(`已${label}`);
+    } catch (e) {
+      console.error("Failed to clear folder:", e);
+    }
+  }, [loadData]);
+
+  const handleDeleteFolder = useCallback(async (folderId: string) => {
+    if (!window.confirm("确定要删除此文件夹及其所有图片吗？此操作不可撤销。")) return;
+    try {
+      await ipc.invoke(IPC_CHANNELS.CATALOG_DELETE_FOLDER, { folderId });
+      if (selectedFolderId === folderId) setSelectedFolderId("all");
+      await loadData();
+      toast.success("文件夹已删除");
+    } catch (e) {
+      console.error("Failed to delete folder:", e);
+    }
+  }, [loadData, selectedFolderId]);
+
+  const handleRenameFolder = useCallback(async (folderId: string, currentName: string) => {
+    const newName = window.prompt("重命名文件夹", currentName);
+    if (!newName || newName.trim() === "" || newName === currentName) return;
+    try {
+      await ipc.invoke(IPC_CHANNELS.CATALOG_RENAME_FOLDER, { folderId, newName: newName.trim() });
+      await loadData();
+      toast.success("文件夹已重命名");
+    } catch (e) {
+      console.error("Failed to rename folder:", e);
+    }
+  }, [loadData]);
 
   const progressPercent =
     importProgress && importProgress.total > 0
@@ -231,26 +287,57 @@ const LibraryPage: React.FC = () => {
         {/* Left sidebar — folder list */}
         <div className={styles.sidebar}>
           <Tabs.List className={styles.folderList}>
-            <Tabs.Trigger value="all" className={styles.folderItem}>
-              <Images size={14} />
-              <span className={styles.folderName}>全部</span>
-              <span className={styles.folderCount}>{images.length}</span>
-            </Tabs.Trigger>
+            <ContextMenu>
+              <ContextMenuTrigger className={styles.contextTrigger}>
+                <Tabs.Trigger value="all" className={styles.folderItem}>
+                  <Images size={14} />
+                  <span className={styles.folderName}>全部</span>
+                  <span className={styles.folderCount}>{images.length}</span>
+                </Tabs.Trigger>
+              </ContextMenuTrigger>
+              <ContextMenuContent>
+                <ContextMenuItem variant="danger" onClick={() => handleClearFolder("all")}>
+                  <Trash2 size={14} />清空图库
+                </ContextMenuItem>
+              </ContextMenuContent>
+            </ContextMenu>
 
             {workspaceFolders.map((folder) => (
-              <Tabs.Trigger key={folder.id} value={folder.id} className={styles.folderItem}>
-                <Folder size={14} />
-                <span className={styles.folderName}>工作区</span>
-                <span className={styles.folderCount}>{folder.imageCount}</span>
-              </Tabs.Trigger>
+              <ContextMenu key={folder.id}>
+                <ContextMenuTrigger className={styles.contextTrigger}>
+                  <Tabs.Trigger value={folder.id} className={styles.folderItem}>
+                    <Folder size={14} />
+                    <span className={styles.folderName}>工作区</span>
+                    <span className={styles.folderCount}>{folder.imageCount}</span>
+                  </Tabs.Trigger>
+                </ContextMenuTrigger>
+                <ContextMenuContent>
+                  <ContextMenuItem variant="danger" onClick={() => handleClearFolder(folder.id)}>
+                    <Trash2 size={14} />清空文件夹
+                  </ContextMenuItem>
+                </ContextMenuContent>
+              </ContextMenu>
             ))}
 
             {userFolders.map((folder) => (
-              <Tabs.Trigger key={folder.id} value={folder.id} className={styles.folderItem}>
-                <Folder size={14} />
-                <span className={styles.folderName}>{folder.name}</span>
-                <span className={styles.folderCount}>{folder.imageCount}</span>
-              </Tabs.Trigger>
+              <ContextMenu key={folder.id}>
+                <ContextMenuTrigger className={styles.contextTrigger}>
+                  <Tabs.Trigger value={folder.id} className={styles.folderItem}>
+                    <Folder size={14} />
+                    <span className={styles.folderName}>{folder.name}</span>
+                    <span className={styles.folderCount}>{folder.imageCount}</span>
+                  </Tabs.Trigger>
+                </ContextMenuTrigger>
+                <ContextMenuContent>
+                  <ContextMenuItem onClick={() => handleRenameFolder(folder.id, folder.name)}>
+                    <Pencil size={14} />重命名
+                  </ContextMenuItem>
+                  <ContextMenuSeparator />
+                  <ContextMenuItem variant="danger" onClick={() => handleDeleteFolder(folder.id)}>
+                    <Trash2 size={14} />删除文件夹
+                  </ContextMenuItem>
+                </ContextMenuContent>
+              </ContextMenu>
             ))}
           </Tabs.List>
         </div>
@@ -288,8 +375,12 @@ const LibraryPage: React.FC = () => {
           {filteredImages.length === 0 ? (
             <div className={styles.empty}>
               <div className={styles.emptyContent}>
-                <Images size={40} strokeWidth={1} className={styles.emptyIcon} />
-                <p className={styles.emptyTitle}>该文件夹暂无图片</p>
+                <div className={styles.emptyContent}>
+                  <div className={styles.logoBg}>
+                    <img src="/logo.svg" className={styles.emptyIcon} />
+                    <p className={styles.emptyTitle}>osa</p>
+                  </div>
+                </div>
               </div>
             </div>
           ) : viewMode === "grid" ? (

@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { readdirSync, statSync, existsSync, mkdirSync, copyFileSync } from "node:fs";
+import { readdirSync, statSync, existsSync, mkdirSync, copyFileSync, unlinkSync } from "node:fs";
 import { join, basename, extname } from "node:path";
 import { app, dialog } from "electron";
 import sharp from "sharp";
@@ -172,7 +172,7 @@ async function processImage(
 
 export async function handleCatalogImportFolder(data?: {
   folderPath?: string;
-}): Promise<Result<{ folder: FolderInfo; importedCount: number }, string>> {
+}): Promise<Result<{ folder: FolderInfo; importedCount: number; skippedCount: number; totalScanned: number }, string>> {
   try {
     let folderPath = data?.folderPath;
 
@@ -183,7 +183,7 @@ export async function handleCatalogImportFolder(data?: {
         title: "选择文件夹",
       });
       if (result.canceled || result.filePaths.length === 0) {
-        return ok({ folder: { id: "", path: "", name: "", imageCount: 0, lastScanned: "" }, importedCount: 0 });
+        return ok({ folder: { id: "", path: "", name: "", imageCount: 0, lastScanned: "" }, importedCount: 0, skippedCount: 0, totalScanned: 0 });
       }
       folderPath = result.filePaths[0];
     }
@@ -200,11 +200,12 @@ export async function handleCatalogImportFolder(data?: {
       | { id: string }
       | undefined;
 
+    const isNewFolder = !existingFolder;
     const folderId = existingFolder?.id ?? randomUUID();
     const folderName = basename(folderPath);
     const now = new Date().toISOString();
 
-    if (!existingFolder) {
+    if (isNewFolder) {
       db.prepare("INSERT INTO folders (id, path, name, image_count, last_scanned) VALUES (?, ?, ?, 0, ?)").run(
         folderId, folderPath, folderName, now,
       );
@@ -227,14 +228,31 @@ export async function handleCatalogImportFolder(data?: {
     });
 
     let importedCount = 0;
+    let skippedCount = 0;
     for (let i = 0; i < imageFiles.length; i++) {
       const result = await processImage(imageFiles[i], folderId);
-      if (result) importedCount++;
+      if (result) {
+        importedCount++;
+      } else {
+        skippedCount++;
+      }
 
       sendToRenderer("catalog:import-progress", {
         folderPath,
         processed: i + 1,
         total: imageFiles.length,
+      });
+    }
+
+    // If no images were imported and folder was newly created, remove the empty folder
+    if (importedCount === 0 && isNewFolder) {
+      db.prepare("DELETE FROM folders WHERE id = ?").run(folderId);
+      logger.info(`Removed empty new folder: ${folderName}`);
+      return ok({
+        folder: { id: "", path: "", name: "", imageCount: 0, lastScanned: "" },
+        importedCount: 0,
+        skippedCount,
+        totalScanned: imageFiles.length,
       });
     }
 
@@ -254,8 +272,8 @@ export async function handleCatalogImportFolder(data?: {
       lastScanned: now,
     };
 
-    logger.info(`Imported ${importedCount} images from ${folderPath}`);
-    return ok({ folder, importedCount });
+    logger.info(`Imported ${importedCount} images from ${folderPath} (skipped ${skippedCount})`);
+    return ok({ folder, importedCount, skippedCount, totalScanned: imageFiles.length });
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     logger.error(`Failed to import folder: ${message}`);
@@ -265,7 +283,7 @@ export async function handleCatalogImportFolder(data?: {
 
 export async function handleCatalogImportFiles(data?: {
   filePaths?: string[];
-}): Promise<Result<{ importedCount: number; folderId: string }, string>> {
+}): Promise<Result<{ importedCount: number; skippedCount: number; totalScanned: number; folderId: string }, string>> {
   try {
     let filePaths = data?.filePaths;
 
@@ -281,7 +299,7 @@ export async function handleCatalogImportFiles(data?: {
         filters: [{ name: "Images", extensions: exts }],
       });
       if (result.canceled || result.filePaths.length === 0) {
-        return ok({ importedCount: 0, folderId: "" });
+        return ok({ importedCount: 0, skippedCount: 0, totalScanned: 0, folderId: "" });
       }
       filePaths = result.filePaths;
     }
@@ -297,12 +315,13 @@ export async function handleCatalogImportFiles(data?: {
     const now = new Date().toISOString();
 
     // Create or get workspace folder record
-    let folderRow = db.prepare("SELECT id FROM folders WHERE path = ?").get(workspaceDir) as
+    const folderRow = db.prepare("SELECT id FROM folders WHERE path = ?").get(workspaceDir) as
       | { id: string }
       | undefined;
+    const isNewFolder = !folderRow;
     const folderId = folderRow?.id ?? randomUUID();
 
-    if (!folderRow) {
+    if (isNewFolder) {
       db.prepare("INSERT INTO folders (id, path, name, image_count, last_scanned) VALUES (?, ?, ?, 0, ?)").run(
         folderId, workspaceDir, `导入 ${dateStr}`, now,
       );
@@ -316,6 +335,8 @@ export async function handleCatalogImportFiles(data?: {
     });
 
     let importedCount = 0;
+    let skippedCount = 0;
+    const copiedFiles: string[] = [];
     for (let i = 0; i < filePaths.length; i++) {
       const srcPath = filePaths[i];
       const fileName = basename(srcPath);
@@ -330,15 +351,29 @@ export async function handleCatalogImportFiles(data?: {
         counter++;
       }
       copyFileSync(srcPath, destPath);
+      copiedFiles.push(destPath);
 
       const result = await processImage(destPath, folderId);
-      if (result) importedCount++;
+      if (result) {
+        importedCount++;
+      } else {
+        skippedCount++;
+        // Remove the copied file if it was a duplicate
+        try { unlinkSync(destPath); } catch { /* ignore */ }
+      }
 
       sendToRenderer("catalog:import-progress", {
         folderPath: workspaceDir,
         processed: i + 1,
         total: filePaths.length,
       });
+    }
+
+    // If no images were imported and folder was newly created, remove the empty folder
+    if (importedCount === 0 && isNewFolder) {
+      db.prepare("DELETE FROM folders WHERE id = ?").run(folderId);
+      logger.info(`Removed empty new workspace folder: ${workspaceDir}`);
+      return ok({ importedCount: 0, skippedCount, totalScanned: filePaths.length, folderId: "" });
     }
 
     // Update folder image count
@@ -349,8 +384,8 @@ export async function handleCatalogImportFiles(data?: {
       countResult.count, now, folderId,
     );
 
-    logger.info(`Imported ${importedCount} files to workspace`);
-    return ok({ importedCount, folderId });
+    logger.info(`Imported ${importedCount} files to workspace (skipped ${skippedCount})`);
+    return ok({ importedCount, skippedCount, totalScanned: filePaths.length, folderId });
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     logger.error(`Failed to import files: ${message}`);
@@ -536,6 +571,111 @@ export async function handleCatalogRemoveImage(data: {
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     logger.error(`Failed to remove image: ${message}`);
+    return err(message);
+  }
+}
+
+// ── Folder management handlers ──
+
+function deleteImageFiles(rows: Array<{ file_path: string; thumbnail_path: string | null }>) {
+  const workspaceDir = join(app.getPath("userData"), "workspace");
+  for (const row of rows) {
+    if (row.thumbnail_path && existsSync(row.thumbnail_path)) {
+      try { unlinkSync(row.thumbnail_path); } catch { /* ignore */ }
+    }
+    if (row.file_path.startsWith(workspaceDir) && existsSync(row.file_path)) {
+      try { unlinkSync(row.file_path); } catch { /* ignore */ }
+    }
+  }
+}
+
+export async function handleCatalogClearFolder(data: {
+  folderId: string;
+}): Promise<Result<{ deletedCount: number }, string>> {
+  try {
+    const db = getDatabase();
+
+    if (data.folderId === "all") {
+      const rows = db.prepare("SELECT file_path, thumbnail_path FROM images").all() as Array<{
+        file_path: string;
+        thumbnail_path: string | null;
+      }>;
+      deleteImageFiles(rows);
+      db.prepare("DELETE FROM images").run();
+      db.prepare("DELETE FROM folders").run();
+      logger.info(`Cleared all images: ${rows.length}`);
+      return ok({ deletedCount: rows.length });
+    }
+
+    const rows = db.prepare("SELECT file_path, thumbnail_path FROM images WHERE folder_id = ?").all(data.folderId) as Array<{
+      file_path: string;
+      thumbnail_path: string | null;
+    }>;
+    deleteImageFiles(rows);
+    db.prepare("DELETE FROM images WHERE folder_id = ?").run(data.folderId);
+    db.prepare("UPDATE folders SET image_count = 0 WHERE id = ?").run(data.folderId);
+    logger.info(`Cleared folder ${data.folderId}: ${rows.length} images`);
+    return ok({ deletedCount: rows.length });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    logger.error(`Failed to clear folder: ${message}`);
+    return err(message);
+  }
+}
+
+export async function handleCatalogDeleteFolder(data: {
+  folderId: string;
+}): Promise<Result<void, string>> {
+  try {
+    const db = getDatabase();
+    const rows = db.prepare("SELECT file_path, thumbnail_path FROM images WHERE folder_id = ?").all(data.folderId) as Array<{
+      file_path: string;
+      thumbnail_path: string | null;
+    }>;
+    deleteImageFiles(rows);
+    db.prepare("DELETE FROM images WHERE folder_id = ?").run(data.folderId);
+    db.prepare("DELETE FROM folders WHERE id = ?").run(data.folderId);
+    logger.info(`Deleted folder ${data.folderId} with ${rows.length} images`);
+    return ok(undefined);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    logger.error(`Failed to delete folder: ${message}`);
+    return err(message);
+  }
+}
+
+export async function handleCatalogRenameFolder(data: {
+  folderId: string;
+  newName: string;
+}): Promise<Result<{ folder: FolderInfo }, string>> {
+  try {
+    const db = getDatabase();
+    const name = data.newName.trim();
+    if (!name) return err("Folder name cannot be empty");
+
+    db.prepare("UPDATE folders SET name = ? WHERE id = ?").run(name, data.folderId);
+    const row = db.prepare("SELECT * FROM folders WHERE id = ?").get(data.folderId) as {
+      id: string;
+      path: string;
+      name: string;
+      image_count: number;
+      last_scanned: string;
+    } | undefined;
+
+    if (!row) return err("Folder not found");
+
+    return ok({
+      folder: {
+        id: row.id,
+        path: row.path,
+        name: row.name,
+        imageCount: row.image_count,
+        lastScanned: row.last_scanned,
+      },
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    logger.error(`Failed to rename folder: ${message}`);
     return err(message);
   }
 }

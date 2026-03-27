@@ -16,6 +16,9 @@ export const IPC_CHANNELS = {
   CATALOG_GET_FOLDERS: "catalog:get-folders",
   CATALOG_REMOVE_IMAGE: "catalog:remove-image",
   CATALOG_SET_RATING: "catalog:set-rating",
+  CATALOG_CLEAR_FOLDER: "catalog:clear-folder",
+  CATALOG_DELETE_FOLDER: "catalog:delete-folder",
+  CATALOG_RENAME_FOLDER: "catalog:rename-folder",
 
   // Batch processing
   BATCH_START: "batch:start",

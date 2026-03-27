@@ -6,6 +6,7 @@ import LibraryPage from "./routes/library";
 import TimelinePage from "./routes/timeline";
 import SettingsPage from "./routes/settings";
 import Sidebar from "./components/shared/Sidebar";
+import { Toaster } from "@mosa/ui-kit";
 import styles from "./App.module.less";
 
 const AppLayout: React.FC = () => {
@@ -34,6 +35,7 @@ const App: React.FC = () => {
           </Route>
         </Routes>
       </div>
+      <Toaster />
     </HashRouter>
   );
 };
