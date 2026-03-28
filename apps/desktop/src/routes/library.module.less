@@ -156,7 +156,7 @@
     display: flex;
     align-items: flex-end;
     gap: 14px;
-    opacity: 0.3;
+    opacity: 0.2;
     pointer-events: none;
     .emptyIcon{
       width: 220px;
@@ -169,6 +169,7 @@
       line-height: 1;
       transform: translateY(-48px);
       font-style: italic;
+      opacity: 0.2;
     }
   }
 }
@@ -239,14 +240,13 @@
 .card {
   border-radius: 6px;
   overflow: hidden;
-  background-color: var(--bg-primary);
-  border: 1px solid var(--border-default);
+  background-color: #000000;
+  border: solid 3px #000000;
   cursor: pointer;
-  transition: box-shadow 0.2s, border-color 0.2s;
+  transition: box-shadow 0.2s;
 
   &:hover {
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-    border-color: var(--border-hover, var(--border-default));
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
   }
 
   &:hover .cardActions {
@@ -277,12 +277,13 @@
   justify-content: space-between;
   gap: 6px;
   min-width: 0;
+  margin-bottom: 6px;
 }
 
 .cardDeviceName {
   flex: 1;
   min-width: 0;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
   color: var(--fg-primary);
   white-space: nowrap;
@@ -323,7 +324,7 @@
 .cardTag {
   display: inline-block;
   padding: 2px 8px;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 500;
   color: var(--fg-secondary);
   background-color: var(--bg-secondary);
@@ -334,8 +335,8 @@
 
 .cardActions {
   position: absolute;
-  bottom: 8px;
-  right: 8px;
+  bottom: 7px;
+  right: 7px;
   display: flex;
   align-items: center;
   gap: 2px;
@@ -346,6 +347,7 @@
 .cardDeleteBtn {
   &:hover {
     color: var(--danger-primary) !important;
+    background-color: transparent !important;
   }
 }
 
@@ -532,26 +534,24 @@
   height: 44px;
   border-radius: 50%;
   border: none;
-  background-color: rgba(255, 255, 255, 0.45);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  color: var(--fg-primary);
+  background-color: rgba(250, 0 , 0, 0.5);
+  color: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   transition: transform 0.25s, box-shadow 0.25s, background-color 0.2s;
-
+  backdrop-filter: blur(12px);
   .fabOpen & {
     transform: rotate(45deg);
-    background-color: rgba(255, 255, 255, 0.6);
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+    background-color: var(--accent-hover);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
   }
 
   &:hover {
-    background-color: rgba(255, 255, 255, 0.6);
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+    background-color: var(--accent-hover);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
   }
 }
 

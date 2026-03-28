@@ -131,16 +131,19 @@ const LibraryPage: React.FC = () => {
     setImporting(true);
     setImportProgress(null);
     try {
-      const res = await ipc.invoke<{ ok: boolean; data?: { importedCount: number; skippedCount: number; totalScanned: number } }>(IPC_CHANNELS.CATALOG_IMPORT_FOLDER);
+      const res = await ipc.invoke<{ ok: boolean; data?: { folder: { id: string }; importedCount: number; skippedCount: number; totalScanned: number } }>(IPC_CHANNELS.CATALOG_IMPORT_FOLDER);
       await loadData();
       if (res?.ok && res.data) {
-        const { importedCount, skippedCount, totalScanned } = res.data;
+        const { folder, importedCount, skippedCount, totalScanned } = res.data;
         if (importedCount === 0 && totalScanned > 0) {
           toast.info("所有图片已在图库中");
-        } else if (importedCount > 0 && skippedCount > 0) {
-          toast.success(`导入 ${importedCount} 张，跳过 ${skippedCount} 张重复`);
         } else if (importedCount > 0) {
-          toast.success(`成功导入 ${importedCount} 张图片`);
+          if (folder.id) setSelectedFolderId(folder.id);
+          if (skippedCount > 0) {
+            toast.success(`导入 ${importedCount} 张，跳过 ${skippedCount} 张重复`);
+          } else {
+            toast.success(`成功导入 ${importedCount} 张图片`);
+          }
         }
       }
     } finally {
@@ -153,16 +156,19 @@ const LibraryPage: React.FC = () => {
     setImporting(true);
     setImportProgress(null);
     try {
-      const res = await ipc.invoke<{ ok: boolean; data?: { importedCount: number; skippedCount: number; totalScanned: number } }>(IPC_CHANNELS.CATALOG_IMPORT_FILES);
+      const res = await ipc.invoke<{ ok: boolean; data?: { importedCount: number; skippedCount: number; totalScanned: number; folderId: string } }>(IPC_CHANNELS.CATALOG_IMPORT_FILES);
       await loadData();
       if (res?.ok && res.data) {
-        const { importedCount, skippedCount, totalScanned } = res.data;
+        const { importedCount, skippedCount, totalScanned, folderId } = res.data;
         if (importedCount === 0 && totalScanned > 0) {
           toast.info("所有图片已在图库中");
-        } else if (importedCount > 0 && skippedCount > 0) {
-          toast.success(`导入 ${importedCount} 张，跳过 ${skippedCount} 张重复`);
         } else if (importedCount > 0) {
-          toast.success(`成功导入 ${importedCount} 张图片`);
+          if (folderId) setSelectedFolderId(folderId);
+          if (skippedCount > 0) {
+            toast.success(`导入 ${importedCount} 张，跳过 ${skippedCount} 张重复`);
+          } else {
+            toast.success(`成功导入 ${importedCount} 张图片`);
+          }
         }
       }
     } finally {
@@ -188,6 +194,7 @@ const LibraryPage: React.FC = () => {
     if (!window.confirm(`确定要${label}吗？此操作不可撤销。`)) return;
     try {
       await ipc.invoke(IPC_CHANNELS.CATALOG_CLEAR_FOLDER, { folderId });
+      setSelectedFolderId("all");
       await loadData();
       toast.success(`已${label}`);
     } catch (e) {
@@ -199,13 +206,13 @@ const LibraryPage: React.FC = () => {
     if (!window.confirm("确定要删除此文件夹及其所有图片吗？此操作不可撤销。")) return;
     try {
       await ipc.invoke(IPC_CHANNELS.CATALOG_DELETE_FOLDER, { folderId });
-      if (selectedFolderId === folderId) setSelectedFolderId("all");
+      setSelectedFolderId("all");
       await loadData();
       toast.success("文件夹已删除");
     } catch (e) {
       console.error("Failed to delete folder:", e);
     }
-  }, [loadData, selectedFolderId]);
+  }, [loadData]);
 
   const handleRenameFolder = useCallback(async (folderId: string, currentName: string) => {
     const newName = window.prompt("重命名文件夹", currentName);

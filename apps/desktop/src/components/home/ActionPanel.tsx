@@ -11,11 +11,19 @@ import {
 } from "@mosa/ui-kit";
 import styles from "./ActionPanel.module.less";
 
-const ActionPanel: React.FC = () => {
+interface ActionPanelProps {
+  onStart?: (btnRect: DOMRect) => void;
+}
+
+const ActionPanel: React.FC<ActionPanelProps> = ({ onStart }) => {
   const navigate = useNavigate();
 
-  const handleImport = () => {
-    navigate("/workspace");
+  const handleImport = (e: React.MouseEvent<HTMLButtonElement>) => {
+    if (onStart) {
+      onStart(e.currentTarget.getBoundingClientRect());
+    } else {
+      navigate("/workspace");
+    }
   };
 
   return (

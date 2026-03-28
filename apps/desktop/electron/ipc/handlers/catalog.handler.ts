@@ -613,8 +613,8 @@ export async function handleCatalogClearFolder(data: {
     }>;
     deleteImageFiles(rows);
     db.prepare("DELETE FROM images WHERE folder_id = ?").run(data.folderId);
-    db.prepare("UPDATE folders SET image_count = 0 WHERE id = ?").run(data.folderId);
-    logger.info(`Cleared folder ${data.folderId}: ${rows.length} images`);
+    db.prepare("DELETE FROM folders WHERE id = ?").run(data.folderId);
+    logger.info(`Cleared and removed folder ${data.folderId}: ${rows.length} images`);
     return ok({ deletedCount: rows.length });
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
